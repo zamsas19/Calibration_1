@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calibration Pilot — Counting Zeros (v5 EN · Multiple Grid)</title>
+<title>Kalibrasyon Pilotu — Sıfır Sayma (v5 TR · Çoklu Izgara)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0f1117;color:#e8e4d9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
@@ -127,75 +127,75 @@ table tr:hover{background:rgba(99,102,241,.04)}
 </head>
 <body>
 
-<h1>Calibration Pilot <span class="vbadge">v5 EN · MULTIPLE GRID</span></h1>
-<p class="sub">7×7 grid · 60 seconds · 2 wrong answers end the round</p>
+<h1>Kalibrasyon Pilotu <span class="vbadge">v5 TR · ÇOKLU IZGARA</span></h1>
+<p class="sub">7×7 ızgara · 60 saniye · 2 yanlış cevap turu bitirir</p>
 
 <!-- WELCOME -->
 <div id="sw" class="card">
-  <h2>Welcome</h2>
-  <p>This is the <strong>multiple-grid version</strong> of the pilot. Each round lasts <strong>60 seconds</strong>. Workers complete as many <strong>7×7 grids</strong> as they can — each correct answer leads to a new grid. <strong>Two wrong answers in a round end the round immediately.</strong></p>
-  <p>At the end of the round, the manager sees how many grids were exactly correct (<strong>m</strong>) and how many were borderline ±1 (<strong>n</strong>), and sets a bonus per grid type.</p>
-  <p>Please enter your name and pick a role.</p>
+  <h2>Hoş Geldiniz</h2>
+  <p>Bu, pilot çalışmanın <strong>çoklu-ızgara versiyonudur</strong>. Her tur <strong>60 saniye</strong> sürer. İşçiler bu süre içinde mümkün olduğunca fazla <strong>7×7 ızgara</strong> tamamlar — her doğru cevap yeni bir ızgara getirir. <strong>Bir turda iki yanlış cevap turu anında bitirir.</strong></p>
+  <p>Tur sonunda yönetici, kaç ızgaranın tam doğru (<strong>m</strong>) ve kaçının sınır değerde ±1 (<strong>n</strong>) olduğunu görür ve her kategori için bonus belirler.</p>
+  <p>Lütfen adınızı girin ve rolünüzü seçin.</p>
   <div class="row">
-    <input type="text" id="pname" placeholder="Your name" style="flex:1">
-    <button class="btn btn-primary" onclick="goInstr()">Continue →</button>
+    <input type="text" id="pname" placeholder="Adınız" style="flex:1">
+    <button class="btn btn-primary" onclick="goInstr()">Devam →</button>
   </div>
 </div>
 
 <!-- INSTRUCTIONS -->
 <div id="si" class="card hidden">
-  <h2>How it works</h2>
-  <p><strong>The Task (Workers):</strong> Count 0s in a 7×7 grid within 60 seconds. Submit your answer — if correct or borderline, a new grid appears. <strong>Two wrong answers (off by 2+) end the round.</strong></p>
-  <p><strong>Performance categories (per grid):</strong></p>
+  <h2>Nasıl Çalışır?</h2>
+  <p><strong>Görev (İşçiler):</strong> 60 saniye içinde 7×7 ızgaradaki sıfırları sayın ve cevabı girin. Cevabınız doğru veya sınır değerdeyse yeni bir ızgara belirir. <strong>İki yanlış cevap (2+ hata) turu bitirir.</strong></p>
+  <p><strong>Performans kategorileri (ızgara başına):</strong></p>
   <p style="margin-left:1rem;font-size:.83rem">
-    • <strong style="color:#4ade80">Exactly correct</strong> → £0.40 revenue, bonus up to £0.20<br>
-    • <strong style="color:#f59e0b">Borderline (±1)</strong> → £0.20 revenue, bonus up to £0.10<br>
-    • <strong style="color:#f87171">Off by 2+</strong> → £0.00, counts toward 2-wrong limit
+    • <strong style="color:#4ade80">Tam doğru</strong> → £0.40 gelir, bonus £0.20'ye kadar<br>
+    • <strong style="color:#f59e0b">Sınır değer (±1)</strong> → £0.20 gelir, bonus £0.10'a kadar<br>
+    • <strong style="color:#f87171">2+ hata</strong> → £0.00, yanlış sayacına eklenir
   </p>
-  <p><strong>Round earnings</strong> (m exact grids, n borderline grids):</p>
+  <p><strong>Tur kazancı</strong> (m tam doğru ızgara, n sınır değer ızgara):</p>
   <p style="margin-left:1rem;font-size:.83rem;font-family:'SF Mono',Monaco,monospace;color:#e8e4d9">
-    Worker: £0.10 + B<sub>M</sub>×m + B<sub>N</sub>×n<br>
-    Manager: £0.40×m + £0.20×n − B<sub>M</sub>×m − B<sub>N</sub>×n
+    İşçi: £0.10 + B<sub>M</sub>×m + B<sub>N</sub>×n<br>
+    Yönetici: £0.40×m + £0.20×n − B<sub>M</sub>×m − B<sub>N</sub>×n
   </p>
-  <p><strong>Note:</strong> Bonuses per grid are capped at £0.20 (exact) and £0.10 (borderline).</p>
-  <p><strong>Leaving:</strong> After each round you may stay or leave. Leaving puts you in the unemployment pool (£0.10/round); you may be re-matched with a different manager after at least 1 round.</p>
-  <div class="row"><button class="btn btn-primary" onclick="goRoles()">Continue →</button></div>
+  <p><strong>Not:</strong> Izgara başına bonus üst sınırı: £0.20 (tam doğru) ve £0.10 (sınır değer).</p>
+  <p><strong>Ayrılma:</strong> Her turun sonunda kalabilir veya ayrılabilirsiniz. Ayrılırsanız işsizlik havuzuna girersiniz (tur başına £0.10); en az 1 tur sonra farklı bir yöneticiyle eşleşebilirsiniz.</p>
+  <div class="row"><button class="btn btn-primary" onclick="goRoles()">Devam →</button></div>
 </div>
 
 <!-- ROLE SELECT -->
 <div id="srs" class="card hidden">
-  <h2>Choose your role</h2>
+  <h2>Rolünüzü seçin</h2>
   <div class="role-grid">
     <div id="rc-w" class="role-card" onclick="selRole('worker')">
       <div class="ri">👤</div>
-      <div class="rn">Worker</div>
-      <div class="rd">Count 0s in grids · complete as many as you can in 60 s</div>
+      <div class="rn">İşçi</div>
+      <div class="rd">Izgaradaki sıfırları sayın · 60 saniyede mümkün olduğunca fazla tamamlayın</div>
     </div>
     <div id="rc-m" class="role-card" onclick="selRole('manager')">
       <div class="ri">📊</div>
-      <div class="rn">Manager</div>
-      <div class="rd">Set bonus per exact grid (B<sub>M</sub>) and per borderline grid (B<sub>N</sub>)</div>
+      <div class="rn">Yönetici</div>
+      <div class="rd">Tam doğru ızgara başına bonus (B<sub>M</sub>) ve sınır değer başına bonus (B<sub>N</sub>) belirleyin</div>
     </div>
   </div>
-  <div class="row"><button id="sbtn-start" class="btn btn-primary" disabled onclick="startExp()">Start →</button></div>
+  <div class="row"><button id="sbtn-start" class="btn btn-primary" disabled onclick="startExp()">Başla →</button></div>
 </div>
 
 <!-- WORKER TASK -->
 <div id="st" class="card hidden">
   <div class="meta">
-    <span class="rl" id="wrl">Round 1 / 10</span>
+    <span class="rl" id="wrl">Tur 1 / 10</span>
     <span class="tc" id="wtc">60</span>
   </div>
   <div class="tw"><div class="tb" id="timerbar"></div></div>
   <div class="dots" id="wdots"></div>
   <div class="grid-counter" id="gridCounter"></div>
   <div id="miniResult" class="mini-result hidden"></div>
-  <div style="text-align:center;font-size:.72rem;color:#6b7280;margin-bottom:.5rem" id="gridNum">Grid 1</div>
+  <div style="text-align:center;font-size:.72rem;color:#6b7280;margin-bottom:.5rem" id="gridNum">Izgara 1</div>
   <div class="grid-wrap"><div class="grid" id="grid"></div></div>
   <div class="ans-row">
-    <span class="lsm">Number of 0s:</span>
+    <span class="lsm">Sıfır sayısı:</span>
     <input type="number" id="wans" min="0" max="100">
-    <button id="wsbtn" class="btn btn-primary" onclick="wSubmit()">Submit</button>
+    <button id="wsbtn" class="btn btn-primary" onclick="wSubmit()">Gönder</button>
   </div>
   <p style="font-size:.72rem;color:#6b7280;text-align:center;margin-top:.75rem" id="roundSoFar"></p>
 </div>
@@ -211,111 +211,111 @@ table tr:hover{background:rgba(99,102,241,.04)}
 
 <!-- WORKER POOL -->
 <div id="swu" class="card hidden">
-  <h2 style="color:#f59e0b">In the unemployment pool</h2>
-  <p>You earn <strong>£0.10</strong> per waiting round. <strong id="poolWaitMsg">Waiting for a job to open with a new manager.</strong></p>
-  <p style="font-size:.78rem;color:#6b7280">Total earnings so far: <strong id="poolEarn">£0.00</strong></p>
-  <div class="row"><button class="btn btn-primary" onclick="wEndU()">Continue →</button></div>
+  <h2 style="color:#f59e0b">İşsizlik havuzundasınız</h2>
+  <p>Her bekleme turu için <strong>£0.10</strong> kazanırsınız. <strong id="poolWaitMsg">Yeni bir yöneticiyle iş açılması bekleniyor.</strong></p>
+  <p style="font-size:.78rem;color:#6b7280">Şu ana kadar toplam kazanç: <strong id="poolEarn">£0.00</strong></p>
+  <div class="row"><button class="btn btn-primary" onclick="wEndU()">Devam →</button></div>
 </div>
 
 <!-- MANAGER DECISION -->
 <div id="sm" class="card hidden">
   <div class="meta">
-    <span class="rl" id="mrl">Round 1 / 10</span>
-    <span class="rl" id="mEarnRunning">Total: £0.00</span>
+    <span class="rl" id="mrl">Tur 1 / 10</span>
+    <span class="rl" id="mEarnRunning">Toplam: £0.00</span>
   </div>
   <div class="dots" id="mdots"></div>
-  <h2 style="font-size:1rem;color:#9ca3af;margin-bottom:.75rem;letter-spacing:.05em;text-transform:uppercase">Set Bonuses for Each Worker</h2>
+  <h2 style="font-size:1rem;color:#9ca3af;margin-bottom:.75rem;letter-spacing:.05em;text-transform:uppercase">Her İşçi İçin Bonus Belirle</h2>
 
   <div id="w1Panel" class="worker-panel">
-    <div class="wp-header"><span class="wp-title">Worker 1</span><span id="w1CatBadge"></span></div>
+    <div class="wp-header"><span class="wp-title">İşçi 1</span><span id="w1CatBadge"></span></div>
     <div id="w1ActiveSection">
       <div class="wp-info">
-        <div class="wp-info-cell"><div class="il">Exact (m)</div><div class="iv" id="w1Exact">0</div></div>
-        <div class="wp-info-cell"><div class="il">Borderline (n)</div><div class="iv" id="w1Border">0</div></div>
-        <div class="wp-info-cell"><div class="il">Wrong</div><div class="iv" id="w1Wrong">0</div></div>
-        <div class="wp-info-cell"><div class="il">Revenue</div><div class="iv" id="w1Rev">£0.00</div></div>
+        <div class="wp-info-cell"><div class="il">Tam doğru (m)</div><div class="iv" id="w1Exact">0</div></div>
+        <div class="wp-info-cell"><div class="il">Sınır değer (n)</div><div class="iv" id="w1Border">0</div></div>
+        <div class="wp-info-cell"><div class="il">Yanlış</div><div class="iv" id="w1Wrong">0</div></div>
+        <div class="wp-info-cell"><div class="il">Gelir</div><div class="iv" id="w1Rev">£0.00</div></div>
       </div>
       <div id="w1BonusSectionM" class="bonus-section">
-        <div class="bonus-label-row"><span>B<sub>M</sub> — Bonus per exactly correct grid (£0.00–£0.20)</span><strong id="w1BonusValM">£0.00</strong></div>
+        <div class="bonus-label-row"><span>B<sub>M</sub> — Tam doğru ızgara başına bonus (£0.00–£0.20)</span><strong id="w1BonusValM">£0.00</strong></div>
         <input type="range" id="w1SliderM" min="0" max="20" value="0" step="1" oninput="updateBonus(1,'M')">
       </div>
       <div id="w1BonusSectionN" class="bonus-section" style="margin-top:.5rem">
-        <div class="bonus-label-row"><span>B<sub>N</sub> — Bonus per borderline grid (£0.00–£0.10)</span><strong id="w1BonusValN">£0.00</strong></div>
+        <div class="bonus-label-row"><span>B<sub>N</sub> — Sınır değer ızgara başına bonus (£0.00–£0.10)</span><strong id="w1BonusValN">£0.00</strong></div>
         <input type="range" id="w1SliderN" min="0" max="10" value="0" step="1" oninput="updateBonus(1,'N')">
       </div>
-      <div id="w1NoBonus" class="no-bonus-msg hidden">No revenue generated — no bonus to set.</div>
+      <div id="w1NoBonus" class="no-bonus-msg hidden">Gelir oluşmadı — bonus ayarlanamaz.</div>
     </div>
-    <div id="w1PoolSection" class="no-bonus-msg hidden">This worker is in the unemployment pool.</div>
+    <div id="w1PoolSection" class="no-bonus-msg hidden">Bu işçi işsizlik havuzunda.</div>
     <div class="earn-preview" id="w1EarnPreview" style="margin-top:.75rem">
-      <div class="ep-item"><div class="epl">Total bonus to worker</div><div class="epv amber" id="w1TotalBonus">£0.00</div></div>
-      <div class="ep-item"><div class="epl">You keep from worker</div><div class="epv green" id="w1YouKeep">£0.00</div></div>
+      <div class="ep-item"><div class="epl">İşçiye toplam bonus</div><div class="epv amber" id="w1TotalBonus">£0.00</div></div>
+      <div class="ep-item"><div class="epl">Sizde kalan</div><div class="epv green" id="w1YouKeep">£0.00</div></div>
     </div>
   </div>
 
   <div id="w2Panel" class="worker-panel">
-    <div class="wp-header"><span class="wp-title">Worker 2</span><span id="w2CatBadge"></span></div>
+    <div class="wp-header"><span class="wp-title">İşçi 2</span><span id="w2CatBadge"></span></div>
     <div id="w2ActiveSection">
       <div class="wp-info">
-        <div class="wp-info-cell"><div class="il">Exact (m)</div><div class="iv" id="w2Exact">0</div></div>
-        <div class="wp-info-cell"><div class="il">Borderline (n)</div><div class="iv" id="w2Border">0</div></div>
-        <div class="wp-info-cell"><div class="il">Wrong</div><div class="iv" id="w2Wrong">0</div></div>
-        <div class="wp-info-cell"><div class="il">Revenue</div><div class="iv" id="w2Rev">£0.00</div></div>
+        <div class="wp-info-cell"><div class="il">Tam doğru (m)</div><div class="iv" id="w2Exact">0</div></div>
+        <div class="wp-info-cell"><div class="il">Sınır değer (n)</div><div class="iv" id="w2Border">0</div></div>
+        <div class="wp-info-cell"><div class="il">Yanlış</div><div class="iv" id="w2Wrong">0</div></div>
+        <div class="wp-info-cell"><div class="il">Gelir</div><div class="iv" id="w2Rev">£0.00</div></div>
       </div>
       <div id="w2BonusSectionM" class="bonus-section">
-        <div class="bonus-label-row"><span>B<sub>M</sub> — Bonus per exactly correct grid (£0.00–£0.20)</span><strong id="w2BonusValM">£0.00</strong></div>
+        <div class="bonus-label-row"><span>B<sub>M</sub> — Tam doğru ızgara başına bonus (£0.00–£0.20)</span><strong id="w2BonusValM">£0.00</strong></div>
         <input type="range" id="w2SliderM" min="0" max="20" value="0" step="1" oninput="updateBonus(2,'M')">
       </div>
       <div id="w2BonusSectionN" class="bonus-section" style="margin-top:.5rem">
-        <div class="bonus-label-row"><span>B<sub>N</sub> — Bonus per borderline grid (£0.00–£0.10)</span><strong id="w2BonusValN">£0.00</strong></div>
+        <div class="bonus-label-row"><span>B<sub>N</sub> — Sınır değer ızgara başına bonus (£0.00–£0.10)</span><strong id="w2BonusValN">£0.00</strong></div>
         <input type="range" id="w2SliderN" min="0" max="10" value="0" step="1" oninput="updateBonus(2,'N')">
       </div>
-      <div id="w2NoBonus" class="no-bonus-msg hidden">No revenue generated — no bonus to set.</div>
+      <div id="w2NoBonus" class="no-bonus-msg hidden">Gelir oluşmadı — bonus ayarlanamaz.</div>
     </div>
-    <div id="w2PoolSection" class="no-bonus-msg hidden">This worker is in the unemployment pool.</div>
+    <div id="w2PoolSection" class="no-bonus-msg hidden">Bu işçi işsizlik havuzunda.</div>
     <div class="earn-preview" id="w2EarnPreview" style="margin-top:.75rem">
-      <div class="ep-item"><div class="epl">Total bonus to worker</div><div class="epv amber" id="w2TotalBonus">£0.00</div></div>
-      <div class="ep-item"><div class="epl">You keep from worker</div><div class="epv green" id="w2YouKeep">£0.00</div></div>
+      <div class="ep-item"><div class="epl">İşçiye toplam bonus</div><div class="epv amber" id="w2TotalBonus">£0.00</div></div>
+      <div class="ep-item"><div class="epl">Sizde kalan</div><div class="epv green" id="w2YouKeep">£0.00</div></div>
     </div>
   </div>
 
   <div class="earn-preview">
-    <div class="ep-item"><div class="epl">Total bonuses paid out</div><div class="epv amber" id="totalBonus">£0.00</div></div>
-    <div class="ep-item"><div class="epl">Your earnings this round</div><div class="epv green" id="yourEarn">£0.00</div></div>
+    <div class="ep-item"><div class="epl">Ödenen toplam bonus</div><div class="epv amber" id="totalBonus">£0.00</div></div>
+    <div class="ep-item"><div class="epl">Bu turdaki kazancınız</div><div class="epv green" id="yourEarn">£0.00</div></div>
   </div>
-  <div class="row"><button class="btn btn-primary" onclick="mConfirm()">Confirm bonuses →</button></div>
+  <div class="row"><button class="btn btn-primary" onclick="mConfirm()">Bonusları onayla →</button></div>
 </div>
 
 <!-- MANAGER OUTCOME -->
 <div id="smr" class="card hidden">
-  <h2>Round results</h2>
+  <h2>Tur sonuçları</h2>
   <div id="mrSummary"></div>
   <div class="sep"></div>
   <div id="mrLeaveInfo"></div>
-  <div class="row"><button class="btn btn-primary" onclick="mNextR()">Next round →</button></div>
+  <div class="row"><button class="btn btn-primary" onclick="mNextR()">Sonraki tur →</button></div>
 </div>
 
 <!-- SURVEY -->
 <div id="survey" class="card hidden">
-  <h2>Quick Survey</h2>
-  <p style="font-size:.82rem;color:#6b7280;margin-bottom:1.25rem">Please answer these questions honestly. Your answers will not affect your payment.</p>
+  <h2>Kısa Anket</h2>
+  <p style="font-size:.82rem;color:#6b7280;margin-bottom:1.25rem">Lütfen bu soruları dürüstçe cevaplayın. Cevaplarınız ödemenizi etkilemez.</p>
   <div id="surveyQuestions"></div>
-  <div class="row"><button class="btn btn-primary" onclick="submitSurvey()">Submit →</button></div>
-  <p id="survey-err" style="color:#f87171;font-size:.78rem;text-align:center;margin-top:.5rem;display:none">Please answer all questions before submitting.</p>
+  <div class="row"><button class="btn btn-primary" onclick="submitSurvey()">Gönder →</button></div>
+  <p id="survey-err" style="color:#f87171;font-size:.78rem;text-align:center;margin-top:.5rem;display:none">Lütfen göndermeden önce tüm soruları cevaplayın.</p>
 </div>
 
 <!-- FINAL -->
 <div id="sf" class="card hidden">
-  <h2 style="color:#4ade80;text-align:center">🎉 Pilot complete</h2>
+  <h2 style="color:#4ade80;text-align:center">🎉 Pilot tamamlandı</h2>
   <div class="sg" id="finalStats"></div>
   <div id="finalVerdict"></div>
-  <h2 style="font-size:.95rem;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-top:1.5rem">Round-by-round log</h2>
+  <h2 style="font-size:.95rem;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-top:1.5rem">Tur bazlı kayıt</h2>
   <div style="overflow-x:auto"><table id="logTable"></table></div>
   <div class="dl-area" style="margin-top:1.5rem">
-    <button class="btn btn-primary" onclick="downloadCSV()">Download CSV</button>
-    <button id="sheetsBtn" class="btn btn-sheets" onclick="sendToSheets()">📊 Save to Sheets</button>
-    <button class="btn btn-grey" onclick="location.reload()">Run again</button>
+    <button class="btn btn-primary" onclick="downloadCSV()">CSV İndir</button>
+    <button id="sheetsBtn" class="btn btn-sheets" onclick="sendToSheets()">📊 Sheets’e Kaydet</button>
+    <button class="btn btn-grey" onclick="location.reload()">Tekrar başla</button>
   </div>
-  <p id="dlok" style="font-size:.75rem;color:#4ade80;margin-top:.4rem;display:none;text-align:center">✓ Downloaded</p>
+  <p id="dlok" style="font-size:.75rem;color:#4ade80;margin-top:.4rem;display:none;text-align:center">✓ İndirildi</p>
 </div>
 
 <script>
@@ -344,15 +344,15 @@ var mW1ReturnRound=-1, mW2ReturnRound=-1;
 
 // ═══ SURVEY DATA ═══
 var SURVEY_WORKER=[
-  {id:'q1',q:'Did your earnings make you feel satisfied with the outcome?',opts:['Yes, I was satisfied with what I earned','Somewhat — it was okay but not great','No, I expected more','I did not pay much attention to my earnings']},
-  {id:'q2',q:'If you chose to leave at any point, what was the main reason?',opts:['The bonus felt unfair given my performance','I wanted to see what would happen (curiosity)','I did not leave at any point','Other reason']},
-  {id:'q3',q:'How fair did you think the manager\'s bonus decisions were?',opts:['Very fair — bonuses matched my performance','Somewhat fair','Not very fair — bonuses felt arbitrary','Very unfair — I felt ignored or exploited']},
-  {id:'q4',q:'Did you try to change your performance based on the outcomes you received?',opts:['Yes, I tried harder after low bonuses','Yes, I relaxed after high bonuses','No, I performed the same regardless','I did not notice a pattern']}
+  {id:'q1',q:'Kazancınız sizi mutlu etti mi?',opts:['Evet, kazancımdan memnun oldum','Biraz — fena değildi ama harika da değildi','Hayır, daha fazlasını bekliyordum','Kazancıma çok dikkat etmedim']},
+  {id:'q2',q:'Herhangi bir noktada işten ayrıldıysanız, ana nedeniniz neydi?',opts:['Performansıma kıyasla bonus haksız hissettirdi','Ne olacağını görmek istedim (merak)','Hiç ayrılmadım','Başka bir neden']},
+  {id:'q3',q:'Yöneticinin bonus kararlarını ne kadar adil buldunuz?',opts:['Çok adil — bonuslar performansımla örtüştü','Biraz adil','Pek adil değil — bonuslar keyfi hissettirdi','Çok adaletsiz — görmezden gelindiğimi hissettim']},
+  {id:'q4',q:'Aldığınız sonuçlara göre performansınızı değiştirmeye çalıştınız mı?',opts:['Evet, düşük bonuslardan sonra daha çok çalıştım','Evet, yüksek bonuslardan sonra gevşedim','Hayır, her zaman aynı şekilde çalıştım','Bir kalıp fark etmedim']}
 ];
 var SURVEY_MANAGER=[
-  {id:'q1',q:'How did you decide what bonus to award? Which principle did you mainly follow?',opts:['I tried to be as generous as possible to keep workers motivated','I gave bonuses proportional to the revenue generated','I kept most revenue for myself to maximise my earnings','I varied my approach depending on the round']},
-  {id:'q2',q:'Did concerns about workers leaving influence your bonus decisions?',opts:['Yes, I gave higher bonuses because I was worried workers might leave','Somewhat — it crossed my mind but did not change much','No, I focused only on maximising my own earnings','I did not think about worker retention']},
-  {id:'q3',q:'Did you feel that workers understood the consequences of your bonus decisions?',opts:['Yes, I think they understood clearly','Probably somewhat, but not fully','I am not sure','No, I think they had little understanding of the consequences']}
+  {id:'q1',q:'Bonus belirlerken hangi ilkeyi izlediniz?',opts:['İşçileri motive etmek için mümkün olduğunca cömert olmaya çalıştım','Elde edilen gelirle orantılı bonus verdim','Kazancımı maksimize etmek için gelirin çoğunu kendime sakladım','Tura göre yaklaşımımı değiştirdim']},
+  {id:'q2',q:'İşçilerin ayrılma endişesi bonus kararlarınızı etkiledi mi?',opts:['Evet, işçiler ayrılabilir diye daha yüksek bonus verdim','Biraz — aklıma geldi ama çok değiştirmedi','Hayır, yalnızca kendi kazancımı maksimize etmeye odaklandım','İşçi tutma konusunu düşünmedim']},
+  {id:'q3',q:'İşçilerin bonus kararlarınızın sonuçlarını anladığını düşündünüz mü?',opts:['Evet, açıkça anladıklarını düşünüyorum','Muhtemelen biraz ama tam olarak değil','Emin değilim','Hayır, sonuçları pek anlamadıklarını düşünüyorum']}
 ];
 
 function drawWaitRounds(){var r=Math.random();if(r<0.30)return 1;if(r<0.65)return 2;if(r<0.85)return 3;return 99;}
@@ -406,7 +406,7 @@ function buildGridCounter(){
 
 function updateRoundSoFar(){
   if(roundGrids.length===0){el('roundSoFar').textContent='';return;}
-  el('roundSoFar').textContent='This round so far: '+roundExact+' exact · '+roundBorder+' borderline · '+roundWrong+' wrong';
+  el('roundSoFar').textContent='Bu turda şimdiye kadar: '+roundExact+' tam doğru · '+roundBorder+' sınır değer · '+roundWrong+' yanlış';
 }
 
 // ═══ NAVIGATION ═══
@@ -433,9 +433,9 @@ function wNextRound(){
       log.push({r:round+1,role:'worker',cat:'pool',grids:0,exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,bonus:0,earn:POOL_PAY,total:workerEarnings,dec:'pool'});
       el('poolEarn').textContent='£'+workerEarnings.toFixed(2);
       var remaining=workerPoolWaitTarget-workerWaitingRounds;
-      var msg=workerPoolWaitTarget>=99?'No new job has opened yet. You remain in the pool.':
-              remaining<=0?'A new job opened with a different manager. You will start working next round.':
-              'Waiting for a new job to open. Approximately '+remaining+' round(s) remaining.';
+      var msg=workerPoolWaitTarget>=99?'Henüz yeni bir iş açılmadı. Havuzda beklemeye devam ediyorsunuz.':
+              remaining<=0?'Farklı bir yöneticiyle yeni bir pozisyon açıldı. Bir sonraki turda çalışmaya başlayacaksınız.':
+              'Yeni bir iş açılması bekleniyor. Yaklaşık '+remaining+' tur daha beklemeniz gerekiyor.';
       el('poolWaitMsg').textContent=msg;
       show('swu'); return;
     }
@@ -444,10 +444,10 @@ function wNextRound(){
   roundGrids=[]; roundExact=0; roundBorder=0; roundWrong=0; roundEnded=false;
   currentMatrix=genMatrix(); currentCorrect=countZ(currentMatrix);
 
-  el('wrl').textContent='Round '+(round+1)+' / '+ROUNDS;
+  el('wrl').textContent='Tur '+(round+1)+' / '+ROUNDS;
   el('wans').value=''; el('wsbtn').disabled=false;
   el('wtc').textContent=SECS; el('wtc').className='tc';
-  el('gridNum').textContent='Grid 1';
+  el('gridNum').textContent='Izgara 1';
   buildDots('wdots'); buildGridCounter(); updateRoundSoFar();
   hide('miniResult'); renderGrid(currentMatrix);
   hide('wr'); hide('swu'); show('st');
@@ -483,10 +483,10 @@ function wSubmit(){
   var mr=el('miniResult');
   var isFirstWrong=(cat==='wrong' && roundWrong<MAX_WRONG);
   mr.className='mini-result '+(cat==='exact'?'mr-exact':cat==='borderline'?'mr-border':'mr-wrong');
-  if(cat==='exact') mr.textContent='✓ Exactly correct! New grid coming…';
-  else if(cat==='borderline') mr.textContent='≈ Borderline (±1). New grid coming…';
-  else if(isFirstWrong) mr.textContent='✗ Wrong (1/2) — one more will end the round.';
-  else mr.textContent='✗ 2nd wrong answer — round ends here.';
+  if(cat==='exact') mr.textContent='✓ Tam doğru! Yeni ızgara geliyor…';
+  else if(cat==='borderline') mr.textContent='≈ Sınır değer (±1). Yeni ızgara geliyor…';
+  else if(isFirstWrong) mr.textContent='✗ Yanlış (1/2) — bir tane daha turu bitirir.';
+  else mr.textContent='✗ 2. yanlış cevap — tur burada bitiyor.';
   show('miniResult');
 
   buildGridCounter();
@@ -502,7 +502,7 @@ function wSubmit(){
 
   el('wans').value='';
   currentMatrix=genMatrix(); currentCorrect=countZ(currentMatrix);
-  el('gridNum').textContent='Grid '+(roundGrids.length+1);
+  el('gridNum').textContent='Izgara '+(roundGrids.length+1);
   setTimeout(function(){
     hide('miniResult');
     renderGrid(currentMatrix);
@@ -532,25 +532,25 @@ function wEndRound(){
     rev:rev,bonusM:bonusM,bonusN:bonusN,bonus:bonus,earn:earn,total:workerEarnings,dec:null});
 
   var badgeCls=overallCat==='exact'?'b-exact':overallCat==='borderline'?'b-border':overallCat==='wrong'?'b-wrong':'b-timeout';
-  var badgeTxt=overallCat==='exact'?'Exactly correct':overallCat==='borderline'?'Borderline ±1':overallCat==='wrong'?'Wrong answer':'No answer';
+  var badgeTxt=overallCat==='exact'?'Tam doğru':overallCat==='borderline'?'Sınır değer ±1':overallCat==='wrong'?'Yanlış cevap':'Cevap verilmedi';
   el('wrbadge').innerHTML='<div class="badge '+badgeCls+'">'+badgeTxt+'</div>';
 
   var det='';
-  det+='<p class="detail">Grids completed: <strong>'+roundGrids.length+'</strong> &nbsp;·&nbsp; ';
-  det+='Exact: <strong style="color:#4ade80">'+roundExact+'</strong> &nbsp;·&nbsp; ';
-  det+='Borderline: <strong style="color:#f59e0b">'+roundBorder+'</strong> &nbsp;·&nbsp; ';
-  det+='Wrong: <strong style="color:#f87171">'+roundWrong+'</strong></p>';
-  det+='<p class="detail">Revenue generated: <strong>£'+rev.toFixed(2)+'</strong> &nbsp;·&nbsp; Bonus received: <strong style="color:#4ade80">£'+bonus.toFixed(2)+'</strong> &nbsp;·&nbsp; Manager kept: <strong>£'+managerKept.toFixed(2)+'</strong></p>';
-  det+='<p class="detail">Earnings this round: <strong style="color:#4ade80">£'+earn.toFixed(2)+'</strong> (£0.10 base + £'+bonus.toFixed(2)+' bonus) &nbsp;·&nbsp; Total: <strong style="color:#4ade80">£'+workerEarnings.toFixed(2)+'</strong></p>';
+  det+='<p class="detail">Tamamlanan ızgara: <strong>'+roundGrids.length+'</strong> &nbsp;·&nbsp; ';
+  det+='Tam doğru: <strong style="color:#4ade80">'+roundExact+'</strong> &nbsp;·&nbsp; ';
+  det+='Sınır değer: <strong style="color:#f59e0b">'+roundBorder+'</strong> &nbsp;·&nbsp; ';
+  det+='Yanlış: <strong style="color:#f87171">'+roundWrong+'</strong></p>';
+  det+='<p class="detail">Oluşturulan gelir: <strong>£'+rev.toFixed(2)+'</strong> &nbsp;·&nbsp; Alınan bonus: <strong style="color:#4ade80">£'+bonus.toFixed(2)+'</strong> &nbsp;·&nbsp; Yöneticide kalan: <strong>£'+managerKept.toFixed(2)+'</strong></p>';
+  det+='<p class="detail">Bu turdaki kazanç: <strong style="color:#4ade80">£'+earn.toFixed(2)+'</strong> (£0.10 baz + £'+bonus.toFixed(2)+' bonus) &nbsp;·&nbsp; Toplam: <strong style="color:#4ade80">£'+workerEarnings.toFixed(2)+'</strong></p>';
   el('wrdetail').innerHTML=det;
 
   var rem=ROUNDS-round-1;
   if(rem===0){
-    el('wrprompt').innerHTML='<p class="detail">This was the final round.</p>';
-    el('wrbtns').innerHTML='<button class="btn btn-primary" onclick="wFinR()">Continue →</button>';
+    el('wrprompt').innerHTML='<p class="detail">Bu son turdu.</p>';
+    el('wrbtns').innerHTML='<button class="btn btn-primary" onclick="wFinR()">Devam →</button>';
   } else {
-    el('wrprompt').innerHTML='<p class="detail"><strong>Continue or Leave?</strong><br>Continue: next round with same manager.<br>Leave: unemployment pool (£0.10/round), re-matched with different manager after ≥1 round.<br><span style="color:#6b7280;font-size:.78rem">'+rem+' round(s) remaining.</span></p>';
-    el('wrbtns').innerHTML='<button class="btn btn-stay" onclick="wDec(\'continue\')">Continue →</button><button class="btn btn-leave" onclick="wDec(\'leave\')">Leave</button>';
+    el('wrprompt').innerHTML='<p class="detail"><strong>Devam mı, Ayrıl mı?</strong><br>Devam: aynı yöneticiyle sonraki tur.<br>Ayrıl: işsizlik havuzu (tur başına £0.10), en az 1 tur sonra farklı yöneticiyle eşleşme.<br><span style="color:#6b7280;font-size:.78rem">'+rem+' tur kaldı.</span></p>';
+    el('wrbtns').innerHTML='<button class="btn btn-stay" onclick="wDec(\'continue\')">Devam →</button><button class="btn btn-leave" onclick="wDec(\'leave\')">Ayrıl</button>';
   }
   show('wr');
 }
@@ -582,8 +582,8 @@ function genWorkerOutcomeMulti(){
 function mNextRound(){
   if(round>=ROUNDS){showSurvey();return;}
 
-  el('mrl').textContent='Round '+(round+1)+' / '+ROUNDS;
-  el('mEarnRunning').textContent='Total: £'+managerEarnings.toFixed(2);
+  el('mrl').textContent='Tur '+(round+1)+' / '+ROUNDS;
+  el('mEarnRunning').textContent='Toplam: £'+managerEarnings.toFixed(2);
   buildDots('mdots');
 
   if(mW1InPool && mW1ReturnRound>0 && round>=mW1ReturnRound){mW1InPool=false;}
@@ -602,7 +602,7 @@ function setupActiveWorker(n,w){
   el('w'+n+'Panel').classList.remove('pool');
   hide('w'+n+'PoolSection'); show('w'+n+'ActiveSection');
   var hasSomething=w.exact>0||w.border>0;
-  var badgeTxt=w.exact>0?w.exact+'E'+(w.border>0?'+'+w.border+'B':''):w.border>0?w.border+'B':'No revenue';
+  var badgeTxt=w.exact>0?w.exact+'TD'+(w.border>0?'+'+w.border+'SD':''):w.border>0?w.border+'SD':'Gelir yok';
   var badgeCls=w.exact>0?'cb-exact':w.border>0?'cb-border':'cb-wrong';
   el('w'+n+'CatBadge').innerHTML='<span class="cat-badge '+badgeCls+'">'+badgeTxt+'</span>';
   el('w'+n+'Exact').textContent=w.exact;
@@ -619,7 +619,7 @@ function setupActiveWorker(n,w){
 function setupPoolWorker(n){
   el('w'+n+'Panel').classList.add('pool');
   hide('w'+n+'ActiveSection'); show('w'+n+'PoolSection');
-  el('w'+n+'CatBadge').innerHTML='<span class="cat-badge cb-timeout">In pool</span>';
+  el('w'+n+'CatBadge').innerHTML='<span class="cat-badge cb-timeout">Havuzda</span>';
   if(n===1) mW1={exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,totalBonus:0};
   else mW2={exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,totalBonus:0};
 }
@@ -661,9 +661,9 @@ function mConfirm(){
     totalRev:totalRev,totalBonus:totalBonus,earn:earn,total:managerEarnings});
 
   var html='<div class="earn-preview" style="margin-top:0">';
-  html+='<div class="ep-item"><div class="epl">Total revenue</div><div class="epv">£'+totalRev.toFixed(2)+'</div></div>';
-  html+='<div class="ep-item"><div class="epl">Bonuses paid</div><div class="epv amber">£'+totalBonus.toFixed(2)+'</div></div></div>';
-  html+='<div style="text-align:center;margin-top:1rem"><div style="font-size:.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Your earnings this round</div>';
+  html+='<div class="ep-item"><div class="epl">Toplam gelir</div><div class="epv">£'+totalRev.toFixed(2)+'</div></div>';
+  html+='<div class="ep-item"><div class="epl">Ödenen bonus</div><div class="epv amber">£'+totalBonus.toFixed(2)+'</div></div></div>';
+  html+='<div style="text-align:center;margin-top:1rem"><div style="font-size:.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Bu turdaki kazancınız</div>';
   html+='<div style="font-family:monospace;font-size:2rem;font-weight:700;color:#4ade80">£'+earn.toFixed(2)+'</div></div>';
   el('mrSummary').innerHTML=html;
 
@@ -677,9 +677,9 @@ function mConfirm(){
   if(w2Leave){mW2InPool=true; var d2=drawReplacementDelay(); mW2ReturnRound=(d2>=99)?-1:(round+d2);}
 
   var leaveInfo='<p class="detail">';
-  if(w1Leave){leaveInfo+='Worker 1 has left. '+(mW1ReturnRound>0&&mW1ReturnRound<ROUNDS?'Replacement expected in ~'+(mW1ReturnRound-round)+' round(s). ':'No replacement expected. ');}
-  if(w2Leave){leaveInfo+='Worker 2 has left. '+(mW2ReturnRound>0&&mW2ReturnRound<ROUNDS?'Replacement expected in ~'+(mW2ReturnRound-round)+' round(s).':'No replacement expected.');}
-  if(!w1Leave&&!w2Leave){leaveInfo+='Both workers chose to continue.';}
+  if(w1Leave){leaveInfo+='İşçi 1 ayrıldı. '+(mW1ReturnRound>0&&mW1ReturnRound<ROUNDS?'~'+(mW1ReturnRound-round)+' tur içinde yeni işçi bekleniyor. ':'Yeni işçi beklenmiyor. ');}
+  if(w2Leave){leaveInfo+='İşçi 2 ayrıldı. '+(mW2ReturnRound>0&&mW2ReturnRound<ROUNDS?'~'+(mW2ReturnRound-round)+' tur içinde yeni işçi bekleniyor.':'Yeni işçi beklenmiyor.');}
+  if(!w1Leave&&!w2Leave){leaveInfo+='Her iki işçi de devam etmeyi seçti.';}
   leaveInfo+='</p>';
   el('mrLeaveInfo').innerHTML=leaveInfo;
 
@@ -755,46 +755,47 @@ function showFinal(){
     var totWrong=rounds.reduce(function(a,r){return a+(r.wrong||0);},0);
     var totGrids=rounds.reduce(function(a,r){return a+(r.grids||0);},0);
     var leftCount=rounds.filter(function(l){return l.dec==='leave';}).length;
-    stats='<div class="sc gr"><div class="v">£'+workerEarnings.toFixed(2)+'</div><div class="l">Total earnings</div></div>';
-    stats+='<div class="sc bl"><div class="v">'+totGrids+'</div><div class="l">Total grids</div></div>';
-    stats+='<div class="sc gr"><div class="v">'+totExact+'</div><div class="l">Exact</div></div>';
-    stats+='<div class="sc yw"><div class="v">'+totBorder+'</div><div class="l">Borderline</div></div>';
-    stats+='<div class="sc rd"><div class="v">'+totWrong+'</div><div class="l">Wrong</div></div>';
-    stats+='<div class="sc am"><div class="v">'+leftCount+'</div><div class="l">Times left</div></div>';
+    stats='<div class="sc gr"><div class="v">£'+workerEarnings.toFixed(2)+'</div><div class="l">Toplam kazanç</div></div>';
+    stats+='<div class="sc bl"><div class="v">'+totGrids+'</div><div class="l">Toplam ızgara</div></div>';
+    stats+='<div class="sc gr"><div class="v">'+totExact+'</div><div class="l">Tam doğru</div></div>';
+    stats+='<div class="sc yw"><div class="v">'+totBorder+'</div><div class="l">Sınır değer</div></div>';
+    stats+='<div class="sc rd"><div class="v">'+totWrong+'</div><div class="l">Yanlış</div></div>';
+    stats+='<div class="sc am"><div class="v">'+leftCount+'</div><div class="l">Ayrılma sayısı</div></div>';
   } else {
     var rounds=log.filter(function(l){return l.role==='manager';});
-    stats='<div class="sc gr"><div class="v">£'+managerEarnings.toFixed(2)+'</div><div class="l">Total earnings</div></div>';
-    stats+='<div class="sc bl"><div class="v">'+rounds.length+'</div><div class="l">Rounds</div></div>';
+    stats='<div class="sc gr"><div class="v">£'+managerEarnings.toFixed(2)+'</div><div class="l">Toplam kazanç</div></div>';
+    stats+='<div class="sc bl"><div class="v">'+rounds.length+'</div><div class="l">Tur sayısı</div></div>';
     var avgB=rounds.reduce(function(a,r){return a+r.totalBonus;},0)/Math.max(rounds.length,1);
-    stats+='<div class="sc yw"><div class="v">£'+avgB.toFixed(2)+'</div><div class="l">Avg bonuses</div></div>';
+    stats+='<div class="sc yw"><div class="v">£'+avgB.toFixed(2)+'</div><div class="l">Ort. bonus</div></div>';
     var avgR=rounds.reduce(function(a,r){return a+r.totalRev;},0)/Math.max(rounds.length,1);
-    stats+='<div class="sc gr"><div class="v">£'+avgR.toFixed(2)+'</div><div class="l">Avg revenue</div></div>';
+    stats+='<div class="sc gr"><div class="v">£'+avgR.toFixed(2)+'</div><div class="l">Ort. gelir</div></div>';
   }
   el('finalStats').innerHTML=stats;
 
   var verdict='';
   if(role==='worker'){
-    if(workerEarnings>=7) verdict='<div class="verd good">Strong session — earnings above baseline expectations.</div>';
-    else if(workerEarnings>=5) verdict='<div class="verd warn">Moderate session — close to expected earnings.</div>';
-    else verdict='<div class="verd bad">Lower than expected — consider adjusting grid size or time.</div>';
+    if(workerEarnings>=7) verdict='<div class="verd good">Güçlü oturum — beklenen kazancın üzerinde.</div>';
+    else if(workerEarnings>=5) verdict='<div class="verd warn">Orta düzey oturum — beklenen kazanca yakın.</div>';
+    else verdict='<div class="verd bad">Beklenenden düşük — ızgara boyutu veya süreyi ayarlamayı düşünün.</div>';
   } else {
     var ep=managerEarnings-3;
-    if(ep>=2) verdict='<div class="verd good">Profitable manager session.</div>';
-    else if(ep>=0) verdict='<div class="verd warn">Modest profit — bonus generosity reduced earnings.</div>';
-    else verdict='<div class="verd bad">Unusual — paid out more than revenue generated.</div>';
+    if(ep>=2) verdict='<div class="verd good">Kârlı yönetici oturumu.</div>';
+    else if(ep>=0) verdict='<div class="verd warn">Orta düzey kâr — yüksek bonus geliri düşürdü.</div>';
+    else verdict='<div class="verd bad">Alışılmadık — elde edilen gelirden fazlası ödendi.</div>';
   }
   el('finalVerdict').innerHTML=verdict;
 
   var tbl=el('logTable');
   if(role==='worker'){
-    tbl.innerHTML='<thead><tr><th>R</th><th>Grids</th><th>Exact</th><th>Border</th><th>Wrong</th><th>Rev</th><th>BM</th><th>BN</th><th>Bonus</th><th>Earn</th><th>Total</th><th>Dec</th></tr></thead><tbody></tbody>';
+    tbl.innerHTML='<thead><tr><th>Tur</th><th>Izgara</th><th>TD</th><th>SD</th><th>Yan.</th><th>Gelir</th><th>BM</th><th>BN</th><th>Bonus</th><th>Kazanç</th><th>Toplam</th><th>Karar</th></tr></thead><tbody></tbody>';
     var tb=tbl.querySelector('tbody');
     log.forEach(function(l){
-      var row='<tr><td>'+l.r+'</td><td>'+(l.grids||0)+'</td><td>'+(l.exact||0)+'</td><td>'+(l.border||0)+'</td><td>'+(l.wrong||0)+'</td><td>£'+(l.rev||0).toFixed(2)+'</td><td>£'+(l.bonusM||0).toFixed(2)+'</td><td>£'+(l.bonusN||0).toFixed(2)+'</td><td>£'+(l.bonus||0).toFixed(2)+'</td><td>£'+l.earn.toFixed(2)+'</td><td>£'+l.total.toFixed(2)+'</td><td>'+(l.dec||'-')+'</td></tr>';
+      var dec=l.dec==='continue'?'devam':l.dec==='leave'?'ayrıl':l.dec==='pool'?'havuz':'-';
+      var row='<tr><td>'+l.r+'</td><td>'+(l.grids||0)+'</td><td>'+(l.exact||0)+'</td><td>'+(l.border||0)+'</td><td>'+(l.wrong||0)+'</td><td>£'+(l.rev||0).toFixed(2)+'</td><td>£'+(l.bonusM||0).toFixed(2)+'</td><td>£'+(l.bonusN||0).toFixed(2)+'</td><td>£'+(l.bonus||0).toFixed(2)+'</td><td>£'+l.earn.toFixed(2)+'</td><td>£'+l.total.toFixed(2)+'</td><td>'+dec+'</td></tr>';
       tb.innerHTML+=row;
     });
   } else {
-    tbl.innerHTML='<thead><tr><th>R</th><th>W1 E</th><th>W1 B</th><th>W1 Rev</th><th>W1 BM</th><th>W1 BN</th><th>W2 E</th><th>W2 B</th><th>W2 Rev</th><th>W2 BM</th><th>W2 BN</th><th>Earn</th><th>Total</th></tr></thead><tbody></tbody>';
+    tbl.innerHTML='<thead><tr><th>Tur</th><th>İ1 TD</th><th>İ1 SD</th><th>İ1 Gelir</th><th>İ1 BM</th><th>İ1 BN</th><th>İ2 TD</th><th>İ2 SD</th><th>İ2 Gelir</th><th>İ2 BM</th><th>İ2 BN</th><th>Kazanç</th><th>Toplam</th></tr></thead><tbody></tbody>';
     var tb=tbl.querySelector('tbody');
     log.forEach(function(l){
       var row='<tr><td>'+l.r+'</td><td>'+l.w1exact+'</td><td>'+l.w1border+'</td><td>£'+l.w1rev.toFixed(2)+'</td><td>£'+l.w1bonusM.toFixed(2)+'</td><td>£'+l.w1bonusN.toFixed(2)+'</td><td>'+l.w2exact+'</td><td>'+l.w2border+'</td><td>£'+l.w2rev.toFixed(2)+'</td><td>£'+l.w2bonusM.toFixed(2)+'</td><td>£'+l.w2bonusN.toFixed(2)+'</td><td>£'+l.earn.toFixed(2)+'</td><td>£'+l.total.toFixed(2)+'</td></tr>';
@@ -807,7 +808,7 @@ function showFinal(){
   var existing=el('surveyLog');
   if(existing) existing.parentNode.removeChild(existing);
   var div=document.createElement('div'); div.id='surveyLog';
-  var shtml='<h2 style="font-size:.95rem;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-top:1.5rem">Survey Answers</h2>';
+  var shtml='<h2 style="font-size:.95rem;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-top:1.5rem">Anket Cevapları</h2>';
   qs.forEach(function(q){
     var ai=surveyAnswers[q.id];
     var ans=ai!==undefined?q.opts[ai]:'—';
@@ -839,7 +840,7 @@ function downloadCSV(){
   var blob=new Blob([csv],{type:'text/csv'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a'); a.href=url;
-  a.download='pilot_v5_EN_'+role+'_'+pname.replace(/[^a-z0-9]/gi,'_')+'_'+Date.now()+'.csv';
+  a.download='pilot_v5_TR_'+role+'_'+pname.replace(/[^a-z0-9]/gi,'_')+'_'+Date.now()+'.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   el('dlok').style.display='block';
@@ -848,7 +849,7 @@ function downloadCSV(){
 function sendToSheets(){
   var btn=document.getElementById("sheetsBtn");
   btn.disabled=true;
-  btn.textContent="Saving...";
+  btn.textContent="Kaydediliyor...";
   var qs=role==="worker"?SURVEY_WORKER:SURVEY_MANAGER;
   var sqCols=qs.map(function(q){return q.id;});
   var sqVals=qs.map(function(q){
@@ -857,30 +858,30 @@ function sendToSheets(){
   });
   var headers,rows;
   if(role==="worker"){
-    headers=['name','round','exact','border','wrong','revenue','bonusM','bonusN','bonus','earnings','total','decision'].concat(sqCols);
+    headers=['isim','tur','exact','border','wrong','gelir','bonusM','bonusN','bonus','kazanc','toplam','karar'].concat(sqCols);
     rows=log.map(function(l,i){
       var base=[pname,l.r||"",l.cat||"",l.sub||"",l.cor||"",l.err||"",l.rev||0,l.bonus||0,l.bonusOran||0,l.earn||0,l.total||0,l.t||"",l.dec||"",''];
       return i===0?base.concat(sqVals):base.concat(sqCols.map(function(){return "";}));
     });
   }else{
-    headers=['name','round','w1_exact','w1_border','w1_rev','w1_bonusM','w1_bonusN','w2_exact','w2_border','w2_rev','w2_bonusM','w2_bonusN','earnings','total'].concat(sqCols);
+    headers=['isim','tur','i1_exact','i1_border','i1_gelir','i1_bonusM','i1_bonusN','i2_exact','i2_border','i2_gelir','i2_bonusM','i2_bonusN','kazanc','toplam'].concat(sqCols);
     rows=log.map(function(l,i){
       var base=[pname,l.r||"",l.w1cat||"",l.w1sub||"",l.w1cor||"",l.w1rev||0,l.w1bonus||0,l.w1bonusOran||0,l.w2cat||"",l.w2sub||"",l.w2cor||"",l.w2rev||0,l.w2bonus||0,l.w2bonusOran||0,l.totalRev||0,l.totalBonus||0,l.earn||0,l.total||0];
       return i===0?base.concat(sqVals):base.concat(sqCols.map(function(){return "";}));
     });
   }
-  var payload={headers:headers,rows:rows,meta:{ver:"v5_EN",role:role,name:pname,ts:new Date().toISOString()}};
-  fetch("https://script.google.com/macros/s/AKfycbw4wi5brJfkRdkr3KEA1xgGDXfbQBGCLhPExeUUnEsrP45BYtUHfiHfMC6OpEM_XeNCwA/exec",{
+  var payload={headers:headers,rows:rows,meta:{ver:"v5_TR",role:role,name:pname,ts:new Date().toISOString()}};
+  fetch("https://script.google.com/macros/s/AKfycbxOTMQd_4tdbxIM2UUqOPZNtsasFAATVwz9u66Pcz-wu3PMlliCLdsipEG8KCwEEo2m/exec",{
     method:"POST",
     mode:"no-cors",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
   }).then(function(){
-    btn.textContent="Saved";
+    btn.textContent="Kaydedildi";
     btn.style.cssText="background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)";
   }).catch(function(){
     btn.disabled=false;
-    btn.textContent="Error - download CSV";
+    btn.textContent="Hata - CSV indirin";
     btn.style.color="#f87171";
   });
 }

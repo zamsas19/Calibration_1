@@ -109,6 +109,9 @@ table tr:hover{background:rgba(99,102,241,.04)}
 .sq-radio{width:13px;height:13px;border-radius:50%;border:1.5px solid #3a4055;flex-shrink:0;margin-top:.2rem;position:relative}
 .sq-opt.selected .sq-radio{border-color:#6366f1}
 .sq-opt.selected .sq-radio::after{content:'';position:absolute;width:5px;height:5px;background:#6366f1;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+.btn-sheets{background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);margin-top:.5rem}
+.btn-sheets:hover{background:rgba(99,102,241,.25)}
+.btn-sheets:disabled{opacity:.7;cursor:default}
 </style>
 </head>
 <body>
@@ -273,6 +276,7 @@ table tr:hover{background:rgba(99,102,241,.04)}
   <div style="overflow-x:auto"><table id="logTable"></table></div>
   <div class="dl-area" style="margin-top:1.5rem">
     <button class="btn btn-primary" onclick="downloadCSV()">CSV İndir</button>
+    <button id="sheetsBtn" class="btn btn-sheets" onclick="sendToSheets()">📊 Sheets’e Kaydet</button>
     <button class="btn btn-grey" onclick="location.reload()">Tekrar başla</button>
   </div>
   <p id="dlok" style="font-size:.75rem;color:#4ade80;margin-top:.4rem;display:none;text-align:center">✓ İndirildi</p>
@@ -1005,6 +1009,47 @@ function downloadCSV(){
   URL.revokeObjectURL(url);
   el('dlok').style.display='block';
 }
+
+function sendToSheets(){
+  var btn=document.getElementById("sheetsBtn");
+  btn.disabled=true;
+  btn.textContent="Kaydediliyor...";
+  var qs=role==="worker"?SURVEY_WORKER:SURVEY_MANAGER;
+  var sqCols=qs.map(function(q){return q.id;});
+  var sqVals=qs.map(function(q){
+    var ai=surveyAnswers[q.id];
+    return ai!==undefined?q.opts[ai]:"";
+  });
+  var headers,rows;
+  if(role==="worker"){
+    headers=['isim','tur','kategori','cevap','dogru','hata','gelir','bonus','bonus_oran','kazanc','toplam','sure_sn','karar','yonetici_tipi'].concat(sqCols);
+    rows=log.map(function(l,i){
+      var base=[pname,l.r||"",l.cat||"",l.sub||"",l.cor||"",l.err||"",l.rev||0,l.bonus||0,l.bonusOran||0,l.earn||0,l.total||0,l.t||"",l.dec||"",l.yoneticiTipi||''];
+      return i===0?base.concat(sqVals):base.concat(sqCols.map(function(){return "";}));
+    });
+  }else{
+    headers=['isim','tur','i1_kat','i1_cevap','i1_dogru','i1_gelir','i1_bonus','i1_bonus_oran','i2_kat','i2_cevap','i2_dogru','i2_gelir','i2_bonus','i2_bonus_oran','toplam_gelir','toplam_bonus','kazanc','toplam'].concat(sqCols);
+    rows=log.map(function(l,i){
+      var base=[pname,l.r||"",l.w1cat||"",l.w1sub||"",l.w1cor||"",l.w1rev||0,l.w1bonus||0,l.w1bonusOran||0,l.w2cat||"",l.w2sub||"",l.w2cor||"",l.w2rev||0,l.w2bonus||0,l.w2bonusOran||0,l.totalRev||0,l.totalBonus||0,l.earn||0,l.total||0];
+      return i===0?base.concat(sqVals):base.concat(sqCols.map(function(){return "";}));
+    });
+  }
+  var payload={headers:headers,rows:rows,meta:{ver:"TR_v6",role:role,name:pname,ts:new Date().toISOString()}};
+  fetch("https://script.google.com/macros/s/AKfycbw7uQP8QsE_g-6Zfa6by9S7MXxHhynXGGnbMxzLGNyN-gARxUhcdMtzEQSkBkXSriCV5w/exec",{
+    method:"POST",
+    mode:"no-cors",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(function(){
+    btn.textContent="Kaydedildi";
+    btn.style.cssText="background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)";
+  }).catch(function(){
+    btn.disabled=false;
+    btn.textContent="Hata - CSV indirin";
+    btn.style.color="#f87171";
+  });
+}
+
 </script>
 </body>
 </html>
