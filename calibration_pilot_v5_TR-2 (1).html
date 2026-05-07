@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalibrasyon Pilotu — Sıfır Sayma (v5 TR · Çoklu Izgara)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0f1117;color:#e8e4d9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
+h1{font-size:.95rem;color:#6366f1;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.3rem;font-weight:600}
+.sub{font-size:.78rem;color:#6b7280;margin-bottom:2rem;letter-spacing:.04em}
+.card{background:#1a1d27;border:.5px solid #2a2d3a;border-radius:10px;padding:1.75rem;width:100%;max-width:700px;margin-bottom:1.25rem}
+.card h2{font-size:1.3rem;font-weight:500;margin-bottom:1rem;color:#e8e4d9}
+.card p{font-size:.875rem;color:#9ca3af;line-height:1.7;margin-bottom:.75rem}
+.card p strong{color:#e8e4d9}
+.hidden{display:none!important}
+input[type=text],input[type=number]{background:#222633;border:1px solid #2a2d3a;border-radius:6px;padding:.5rem .75rem;color:#e8e4d9;font-size:.9rem;outline:none;font-family:inherit}
+input[type=text]:focus,input[type=number]:focus{border-color:#6366f1}
+input[type=number]{width:110px;font-family:"SF Mono",Monaco,monospace;font-size:1.1rem;font-weight:600;-moz-appearance:textfield;text-align:center}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=range]{width:100%;padding:0;height:6px;accent-color:#6366f1;cursor:pointer}
+.btn{padding:.55rem 1.25rem;border-radius:6px;font-size:.875rem;font-weight:500;cursor:pointer;border:none;transition:opacity .15s,transform .1s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:#6366f1;color:white}
+.btn-primary:hover{background:#4f46e5}
+.btn-grey{background:#2a2d3a;color:#cbd5e1;border:.5px solid #374151}
+.btn-leave{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+.btn-stay{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.row{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-top:1rem;justify-content:center}
+.lsm{font-size:.8rem;color:#9ca3af;white-space:nowrap}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+.role-card{background:#222633;border:2px solid #2a2d3a;border-radius:10px;padding:1.25rem;cursor:pointer;transition:border-color .2s,background .2s;text-align:center}
+.role-card:hover{border-color:#374151;background:#262936}
+.role-card.selected{border-color:#6366f1;background:#1f1f3d}
+.role-card .ri{font-size:2rem;margin-bottom:.5rem}
+.role-card .rn{font-size:1rem;font-weight:600;margin-bottom:.3rem;color:#e8e4d9}
+.role-card .rd{font-size:.78rem;color:#9ca3af;line-height:1.5}
+.tw{height:5px;background:#2a2d3a;border-radius:3px;margin-bottom:1.25rem;overflow:hidden}
+.tb{height:100%;width:100%;background:#6366f1;border-radius:3px;transition:width .1s linear,background .3s}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.rl{font-size:.75rem;color:#6b7280;font-family:"SF Mono",Monaco,monospace;letter-spacing:.05em}
+.tc{font-family:"SF Mono",Monaco,monospace;font-size:1.1rem;font-weight:700;color:#6366f1;min-width:3ch;text-align:right}
+.tc.red{color:#f87171}
+.dots{display:flex;gap:5px;justify-content:center;margin-bottom:1.25rem}
+.dot{width:8px;height:8px;border-radius:50%;background:#2a2d3a}
+.dot.done{background:#6366f1}
+.dot.active{background:#f59e0b}
+.grid-wrap{display:flex;justify-content:center;margin-bottom:1.25rem}
+.grid{display:inline-grid;gap:2px;background:#222633;border:1px solid #2a2d3a;border-radius:8px;padding:10px}
+.cell{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-family:"SF Mono",Monaco,monospace;font-size:.95rem;font-weight:500;color:#4b5563}
+.cell.z{color:#6366f1;font-weight:700}
+.grid-counter{display:flex;gap:6px;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
+.gc-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid #2a2d3a;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#6b7280;background:#1a1d27}
+.gc-dot.exact{background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.4);color:#4ade80}
+.gc-dot.border{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:#f59e0b}
+.gc-dot.wrong{background:rgba(248,113,113,.15);border-color:rgba(248,113,113,.4);color:#f87171}
+.gc-dot.active{border-color:#6366f1;color:#6366f1}
+@keyframes flashIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.grid-flash{animation:flashIn .2s ease-out}
+.mini-result{font-size:.78rem;padding:.3rem .8rem;border-radius:5px;margin-bottom:.75rem;text-align:center;font-weight:600}
+.mr-exact{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
+.mr-border{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
+.mr-wrong{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25)}
+.ans-row{display:flex;gap:.75rem;align-items:center;justify-content:center}
+.badge{display:inline-flex;align-items:center;padding:.35rem .9rem;border-radius:999px;font-size:.82rem;font-weight:700;margin-bottom:1rem;letter-spacing:.03em}
+.b-exact{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.b-border{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.b-wrong{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+.b-timeout{background:rgba(100,100,100,.15);color:#9ca3af;border:1px solid rgba(100,100,100,.3)}
+.detail{font-size:.85rem;color:#9ca3af;line-height:1.7;margin-bottom:.4rem}
+.detail strong{color:#e8e4d9}
+.sep{border-top:1px solid #2a2d3a;margin:1.25rem 0}
+.worker-panel{background:#222633;border:1px solid #2a2d3a;border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+.worker-panel.pool{background:#1a1d27;border-color:#2a2d3a;opacity:.7}
+.wp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.875rem}
+.wp-title{font-size:.95rem;color:#e8e4d9;font-weight:600}
+.wp-info{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;background:#1a1d27;border-radius:6px;padding:.6rem;margin-bottom:.875rem}
+.wp-info-cell{text-align:center}
+.wp-info-cell .il{font-size:.6rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem}
+.wp-info-cell .iv{font-family:"SF Mono",Monaco,monospace;font-size:.9rem;color:#e8e4d9;font-weight:600}
+.cat-badge{display:inline-block;padding:.2rem .65rem;border-radius:5px;font-size:.78rem;font-weight:700}
+.cb-exact{background:rgba(74,222,128,.15);color:#4ade80}
+.cb-border{background:rgba(245,158,11,.15);color:#f59e0b}
+.cb-wrong{background:rgba(248,113,113,.15);color:#f87171}
+.cb-timeout{background:rgba(100,100,100,.15);color:#9ca3af}
+.bonus-section{margin-top:.875rem}
+.bonus-label-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:#9ca3af;margin-bottom:.5rem}
+.bonus-label-row strong{font-family:"SF Mono",Monaco,monospace;font-size:1.1rem;color:#6366f1}
+.no-bonus-msg{font-size:.82rem;color:#6b7280;font-style:italic;text-align:center;padding:.5rem;margin-top:.5rem}
+.earn-preview{background:#1a1d27;border:1px solid #2a2d3a;border-radius:8px;padding:.75rem 1rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem;font-size:.82rem;margin-top:.75rem}
+.ep-item .epl{color:#6b7280;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem}
+.ep-item .epv{font-family:"SF Mono",Monaco,monospace;font-size:1rem;font-weight:600;color:#e8e4d9}
+.epv.green{color:#4ade80}
+.epv.amber{color:#f59e0b}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.sc{background:#222633;border:1px solid #2a2d3a;border-radius:8px;padding:.875rem;text-align:center}
+.sc .v{font-family:"SF Mono",Monaco,monospace;font-size:1.7rem;font-weight:700;line-height:1;margin-bottom:.25rem}
+.sc .l{font-size:.67rem;color:#6b7280;text-transform:uppercase;letter-spacing:.07em}
+.sc.gr .v{color:#4ade80}
+.sc.yw .v{color:#f59e0b}
+.sc.rd .v{color:#f87171}
+.sc.gy .v{color:#6b7280}
+.sc.am .v{color:#fbbf24}
+.sc.bl .v{color:#6366f1}
+.verd{padding:.875rem 1rem;border-radius:8px;font-size:.83rem;line-height:1.6;margin-bottom:.75rem;border:1px solid}
+.verd.good{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2);color:#a7f3d0}
+.verd.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:#fbcfa3}
+.verd.bad{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.2);color:#fecaca}
+table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.78rem}
+table th,table td{padding:.5rem;border-bottom:1px solid #2a2d3a;text-align:left}
+table th{background:#222633;color:#9ca3af;font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+table tr:hover{background:rgba(99,102,241,.04)}
+.dl-area{text-align:center}
+.vbadge{display:inline-block;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#818cf8;font-size:.7rem;padding:.2rem .6rem;border-radius:4px;margin-left:.5rem;font-family:"SF Mono",Monaco,monospace;vertical-align:middle}
+.survey-q{margin-bottom:1.5rem}
+.survey-q .sq-label{font-size:.9rem;color:#e8e4d9;font-weight:500;margin-bottom:.75rem;line-height:1.5}
+.survey-q .sq-opts{display:flex;flex-direction:column;gap:.4rem}
+.sq-opt{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .75rem;border-radius:6px;border:1px solid #2a2d3a;cursor:pointer;transition:border-color .15s,background .15s;font-size:.83rem;color:#9ca3af}
+.sq-opt:hover{border-color:#374151;background:#222633}
+.sq-opt.selected{border-color:#6366f1;background:rgba(99,102,241,.1);color:#e8e4d9}
+.sq-opt input[type=radio]{accent-color:#6366f1;margin-top:.15rem;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<h1>Kalibrasyon Pilotu <span class="vbadge">v5 TR · ÇOKLU IZGARA</span></h1>
+<p class="sub">7×7 ızgara · 60 saniye · 2 yanlış cevap turu bitirir</p>
+
+<!-- WELCOME -->
+<div id="sw" class="card">
+  <h2>Hoş Geldiniz</h2>
+  <p>Bu, pilot çalışmanın <strong>çoklu-ızgara versiyonudur</strong>. Her tur <strong>60 saniye</strong> sürer. İşçiler bu süre içinde mümkün olduğunca fazla <strong>7×7 ızgara</strong> tamamlar — her doğru cevap yeni bir ızgara getirir. <strong>Bir turda iki yanlış cevap turu anında bitirir.</strong></p>
+  <p>Tur sonunda yönetici, kaç ızgaranın tam doğru (<strong>m</strong>) ve kaçının sınır değerde ±1 (<strong>n</strong>) olduğunu görür ve her kategori için bonus belirler.</p>
+  <p>Lütfen adınızı girin ve rolünüzü seçin.</p>
+  <div class="row">
+    <input type="text" id="pname" placeholder="Adınız" style="flex:1">
+    <button class="btn btn-primary" onclick="goInstr()">Devam →</button>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div id="si" class="card hidden">
+  <h2>Nasıl Çalışır?</h2>
+  <p><strong>Görev (İşçiler):</strong> 60 saniye içinde 7×7 ızgaradaki sıfırları sayın ve cevabı girin. Cevabınız doğru veya sınır değerdeyse yeni bir ızgara belirir. <strong>İki yanlış cevap (2+ hata) turu bitirir.</strong></p>
+  <p><strong>Performans kategorileri (ızgara başına):</strong></p>
+  <p style="margin-left:1rem;font-size:.83rem">
+    • <strong style="color:#4ade80">Tam doğru</strong> → £0.40 gelir, bonus £0.20'ye kadar<br>
+    • <strong style="color:#f59e0b">Sınır değer (±1)</strong> → £0.20 gelir, bonus £0.10'a kadar<br>
+    • <strong style="color:#f87171">2+ hata</strong> → £0.00, yanlış sayacına eklenir
+  </p>
+  <p><strong>Tur kazancı</strong> (m tam doğru ızgara, n sınır değer ızgara):</p>
+  <p style="margin-left:1rem;font-size:.83rem;font-family:'SF Mono',Monaco,monospace;color:#e8e4d9">
+    İşçi: £0.10 + B<sub>M</sub>×m + B<sub>N</sub>×n<br>
+    Yönetici: £0.40×m + £0.20×n − B<sub>M</sub>×m − B<sub>N</sub>×n
+  </p>
+  <p><strong>Not:</strong> Izgara başına bonus üst sınırı: £0.20 (tam doğru) ve £0.10 (sınır değer).</p>
+  <p><strong>Ayrılma:</strong> Her turun sonunda kalabilir veya ayrılabilirsiniz. Ayrılırsanız işsizlik havuzuna girersiniz (tur başına £0.10); en az 1 tur sonra farklı bir yöneticiyle eşleşebilirsiniz.</p>
+  <div class="row"><button class="btn btn-primary" onclick="goRoles()">Devam →</button></div>
+</div>
+
+<!-- ROLE SELECT -->
+<div id="srs" class="card hidden">
+  <h2>Rolünüzü seçin</h2>
+  <div class="role-grid">
+    <div id="rc-w" class="role-card" onclick="selRole('worker')">
+      <div class="ri">👤</div>
+      <div class="rn">İşçi</div>
+      <div class="rd">Izgaradaki sıfırları sayın · 60 saniyede mümkün olduğunca fazla tamamlayın</div>
+    </div>
+    <div id="rc-m" class="role-card" onclick="selRole('manager')">
+      <div class="ri">📊</div>
+      <div class="rn">Yönetici</div>
+      <div class="rd">Tam doğru ızgara başına bonus (B<sub>M</sub>) ve sınır değer başına bonus (B<sub>N</sub>) belirleyin</div>
+    </div>
+  </div>
+  <div class="row"><button id="sbtn-start" class="btn btn-primary" disabled onclick="startExp()">Başla →</button></div>
+</div>
+
+<!-- WORKER TASK -->
+<div id="st" class="card hidden">
+  <div class="meta">
+    <span class="rl" id="wrl">Tur 1 / 10</span>
+    <span class="tc" id="wtc">60</span>
+  </div>
+  <div class="tw"><div class="tb" id="timerbar"></div></div>
+  <div class="dots" id="wdots"></div>
+  <div class="grid-counter" id="gridCounter"></div>
+  <div id="miniResult" class="mini-result hidden"></div>
+  <div style="text-align:center;font-size:.72rem;color:#6b7280;margin-bottom:.5rem" id="gridNum">Izgara 1</div>
+  <div class="grid-wrap"><div class="grid" id="grid"></div></div>
+  <div class="ans-row">
+    <span class="lsm">Sıfır sayısı:</span>
+    <input type="number" id="wans" min="0" max="100">
+    <button id="wsbtn" class="btn btn-primary" onclick="wSubmit()">Gönder</button>
+  </div>
+  <p style="font-size:.72rem;color:#6b7280;text-align:center;margin-top:.75rem" id="roundSoFar"></p>
+</div>
+
+<!-- WORKER OUTCOME -->
+<div id="wr" class="card hidden">
+  <div id="wrbadge"></div>
+  <div id="wrdetail"></div>
+  <div class="sep"></div>
+  <div id="wrprompt"></div>
+  <div id="wrbtns" class="row"></div>
+</div>
+
+<!-- WORKER POOL -->
+<div id="swu" class="card hidden">
+  <h2 style="color:#f59e0b">İşsizlik havuzundasınız</h2>
+  <p>Her bekleme turu için <strong>£0.10</strong> kazanırsınız. <strong id="poolWaitMsg">Yeni bir yöneticiyle iş açılması bekleniyor.</strong></p>
+  <p style="font-size:.78rem;color:#6b7280">Şu ana kadar toplam kazanç: <strong id="poolEarn">£0.00</strong></p>
+  <div class="row"><button class="btn btn-primary" onclick="wEndU()">Devam →</button></div>
+</div>
+
+<!-- MANAGER DECISION -->
+<div id="sm" class="card hidden">
+  <div class="meta">
+    <span class="rl" id="mrl">Tur 1 / 10</span>
+    <span class="rl" id="mEarnRunning">Toplam: £0.00</span>
+  </div>
+  <div class="dots" id="mdots"></div>
+  <h2 style="font-size:1rem;color:#9ca3af;margin-bottom:.75rem;letter-spacing:.05em;text-transform:uppercase">Her İşçi İçin Bonus Belirle</h2>
+
+  <div id="w1Panel" class="worker-panel">
+    <div class="wp-header"><span class="wp-title">İşçi 1</span><span id="w1CatBadge"></span></div>
+    <div id="w1ActiveSection">
+      <div class="wp-info">
+        <div class="wp-info-cell"><div class="il">Tam doğru (m)</div><div class="iv" id="w1Exact">0</div></div>
+        <div class="wp-info-cell"><div class="il">Sınır değer (n)</div><div class="iv" id="w1Border">0</div></div>
+        <div class="wp-info-cell"><div class="il">Yanlış</div><div class="iv" id="w1Wrong">0</div></div>
+        <div class="wp-info-cell"><div class="il">Gelir</div><div class="iv" id="w1Rev">£0.00</div></div>
+      </div>
+      <div id="w1BonusSectionM" class="bonus-section">
+        <div class="bonus-label-row"><span>B<sub>M</sub> — Tam doğru ızgara başına bonus (£0.00–£0.20)</span><strong id="w1BonusValM">£0.00</strong></div>
+        <input type="range" id="w1SliderM" min="0" max="20" value="0" step="1" oninput="updateBonus(1,'M')">
+      </div>
+      <div id="w1BonusSectionN" class="bonus-section" style="margin-top:.5rem">
+        <div class="bonus-label-row"><span>B<sub>N</sub> — Sınır değer ızgara başına bonus (£0.00–£0.10)</span><strong id="w1BonusValN">£0.00</strong></div>
+        <input type="range" id="w1SliderN" min="0" max="10" value="0" step="1" oninput="updateBonus(1,'N')">
+      </div>
+      <div id="w1NoBonus" class="no-bonus-msg hidden">Gelir oluşmadı — bonus ayarlanamaz.</div>
+    </div>
+    <div id="w1PoolSection" class="no-bonus-msg hidden">Bu işçi işsizlik havuzunda.</div>
+    <div class="earn-preview" id="w1EarnPreview" style="margin-top:.75rem">
+      <div class="ep-item"><div class="epl">İşçiye toplam bonus</div><div class="epv amber" id="w1TotalBonus">£0.00</div></div>
+      <div class="ep-item"><div class="epl">Sizde kalan</div><div class="epv green" id="w1YouKeep">£0.00</div></div>
+    </div>
+  </div>
+
+  <div id="w2Panel" class="worker-panel">
+    <div class="wp-header"><span class="wp-title">İşçi 2</span><span id="w2CatBadge"></span></div>
+    <div id="w2ActiveSection">
+      <div class="wp-info">
+        <div class="wp-info-cell"><div class="il">Tam doğru (m)</div><div class="iv" id="w2Exact">0</div></div>
+        <div class="wp-info-cell"><div class="il">Sınır değer (n)</div><div class="iv" id="w2Border">0</div></div>
+        <div class="wp-info-cell"><div class="il">Yanlış</div><div class="iv" id="w2Wrong">0</div></div>
+        <div class="wp-info-cell"><div class="il">Gelir</div><div class="iv" id="w2Rev">£0.00</div></div>
+      </div>
+      <div id="w2BonusSectionM" class="bonus-section">
+        <div class="bonus-label-row"><span>B<sub>M</sub> — Tam doğru ızgara başına bonus (£0.00–£0.20)</span><strong id="w2BonusValM">£0.00</strong></div>
+        <input type="range" id="w2SliderM" min="0" max="20" value="0" step="1" oninput="updateBonus(2,'M')">
+      </div>
+      <div id="w2BonusSectionN" class="bonus-section" style="margin-top:.5rem">
+        <div class="bonus-label-row"><span>B<sub>N</sub> — Sınır değer ızgara başına bonus (£0.00–£0.10)</span><strong id="w2BonusValN">£0.00</strong></div>
+        <input type="range" id="w2SliderN" min="0" max="10" value="0" step="1" oninput="updateBonus(2,'N')">
+      </div>
+      <div id="w2NoBonus" class="no-bonus-msg hidden">Gelir oluşmadı — bonus ayarlanamaz.</div>
+    </div>
+    <div id="w2PoolSection" class="no-bonus-msg hidden">Bu işçi işsizlik havuzunda.</div>
+    <div class="earn-preview" id="w2EarnPreview" style="margin-top:.75rem">
+      <div class="ep-item"><div class="epl">İşçiye toplam bonus</div><div class="epv amber" id="w2TotalBonus">£0.00</div></div>
+      <div class="ep-item"><div class="epl">Sizde kalan</div><div class="epv green" id="w2YouKeep">£0.00</div></div>
+    </div>
+  </div>
+
+  <div class="earn-preview">
+    <div class="ep-item"><div class="epl">Ödenen toplam bonus</div><div class="epv amber" id="totalBonus">£0.00</div></div>
+    <div class="ep-item"><div class="epl">Bu turdaki kazancınız</div><div class="epv green" id="yourEarn">£0.00</div></div>
+  </div>
+  <div class="row"><button class="btn btn-primary" onclick="mConfirm()">Bonusları onayla →</button></div>
+</div>
+
+<!-- MANAGER OUTCOME -->
+<div id="smr" class="card hidden">
+  <h2>Tur sonuçları</h2>
+  <div id="mrSummary"></div>
+  <div class="sep"></div>
+  <div id="mrLeaveInfo"></div>
+  <div class="row"><button class="btn btn-primary" onclick="mNextR()">Sonraki tur →</button></div>
+</div>
+
+<!-- SURVEY -->
+<div id="survey" class="card hidden">
+  <h2>Kısa Anket</h2>
+  <p style="font-size:.82rem;color:#6b7280;margin-bottom:1.25rem">Lütfen bu soruları dürüstçe cevaplayın. Cevaplarınız ödemenizi etkilemez.</p>
+  <div id="surveyQuestions"></div>
+  <div class="row"><button class="btn btn-primary" onclick="submitSurvey()">Gönder →</button></div>
+  <p id="survey-err" style="color:#f87171;font-size:.78rem;text-align:center;margin-top:.5rem;display:none">Lütfen göndermeden önce tüm soruları cevaplayın.</p>
+</div>
+
+<!-- FINAL -->
+<div id="sf" class="card hidden">
+  <h2 style="color:#4ade80;text-align:center">🎉 Pilot tamamlandı</h2>
+  <div class="sg" id="finalStats"></div>
+  <div id="finalVerdict"></div>
+  <h2 style="font-size:.95rem;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-top:1.5rem">Tur bazlı kayıt</h2>
+  <div style="overflow-x:auto"><table id="logTable"></table></div>
+  <div class="dl-area" style="margin-top:1.5rem">
+    <button class="btn btn-primary" onclick="downloadCSV()">CSV İndir</button>
+    <button class="btn btn-grey" onclick="location.reload()">Tekrar başla</button>
+  </div>
+  <p id="dlok" style="font-size:.75rem;color:#4ade80;margin-top:.4rem;display:none;text-align:center">✓ İndirildi</p>
+</div>
+
+<script>
+// ═══ CONFIG ═══
+var ROUNDS=10, ROWS=7, COLS=7, SECS=60;
+var BASE_MATCHED=0.10, POOL_PAY=0.10;
+var REV_EXACT=0.40, REV_BORDER=0.20;
+var MAX_BM=0.20, MAX_BN=0.10;
+var MAX_WRONG=2;
+
+// ═══ STATE ═══
+var pname='', role='', round=0;
+var workerEarnings=3.00, managerEarnings=3.00;
+var workerInPool=false, workerWaitingRounds=0, workerPoolWaitTarget=0;
+var currentMatrix=[], currentCorrect=0;
+var roundGrids=[];
+var roundExact=0, roundBorder=0, roundWrong=0;
+var roundEnded=false;
+var t0=null, tmr=null;
+var log=[];
+var surveyAnswers={};
+var mW1={exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,totalBonus:0};
+var mW2={exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,totalBonus:0};
+var mW1InPool=false, mW2InPool=false;
+var mW1ReturnRound=-1, mW2ReturnRound=-1;
+
+// ═══ SURVEY DATA ═══
+var SURVEY_WORKER=[
+  {id:'q1',q:'Kazancınız sizi mutlu etti mi?',opts:['Evet, kazancımdan memnun oldum','Biraz — fena değildi ama harika da değildi','Hayır, daha fazlasını bekliyordum','Kazancıma çok dikkat etmedim']},
+  {id:'q2',q:'Herhangi bir noktada işten ayrıldıysanız, ana nedeniniz neydi?',opts:['Performansıma kıyasla bonus haksız hissettirdi','Ne olacağını görmek istedim (merak)','Hiç ayrılmadım','Başka bir neden']},
+  {id:'q3',q:'Yöneticinin bonus kararlarını ne kadar adil buldunuz?',opts:['Çok adil — bonuslar performansımla örtüştü','Biraz adil','Pek adil değil — bonuslar keyfi hissettirdi','Çok adaletsiz — görmezden gelindiğimi hissettim']},
+  {id:'q4',q:'Aldığınız sonuçlara göre performansınızı değiştirmeye çalıştınız mı?',opts:['Evet, düşük bonuslardan sonra daha çok çalıştım','Evet, yüksek bonuslardan sonra gevşedim','Hayır, her zaman aynı şekilde çalıştım','Bir kalıp fark etmedim']}
+];
+var SURVEY_MANAGER=[
+  {id:'q1',q:'Bonus belirlerken hangi ilkeyi izlediniz?',opts:['İşçileri motive etmek için mümkün olduğunca cömert olmaya çalıştım','Elde edilen gelirle orantılı bonus verdim','Kazancımı maksimize etmek için gelirin çoğunu kendime sakladım','Tura göre yaklaşımımı değiştirdim']},
+  {id:'q2',q:'İşçilerin ayrılma endişesi bonus kararlarınızı etkiledi mi?',opts:['Evet, işçiler ayrılabilir diye daha yüksek bonus verdim','Biraz — aklıma geldi ama çok değiştirmedi','Hayır, yalnızca kendi kazancımı maksimize etmeye odaklandım','İşçi tutma konusunu düşünmedim']},
+  {id:'q3',q:'İşçilerin bonus kararlarınızın sonuçlarını anladığını düşündünüz mü?',opts:['Evet, açıkça anladıklarını düşünüyorum','Muhtemelen biraz ama tam olarak değil','Emin değilim','Hayır, sonuçları pek anlamadıklarını düşünüyorum']}
+];
+
+function drawWaitRounds(){var r=Math.random();if(r<0.30)return 1;if(r<0.65)return 2;if(r<0.85)return 3;return 99;}
+function drawReplacementDelay(){var r=Math.random();if(r<0.25)return 2;if(r<0.55)return 3;if(r<0.80)return 4;return 99;}
+
+function show(id){document.getElementById(id).classList.remove('hidden')}
+function hide(id){document.getElementById(id).classList.add('hidden')}
+function el(id){return document.getElementById(id)}
+
+function buildDots(cid){
+  var w=el(cid); w.innerHTML='';
+  for(var i=0;i<ROUNDS;i++){
+    var d=document.createElement('div');
+    d.className='dot'+(i<round?' done':i===round?' active':'');
+    w.appendChild(d);
+  }
+}
+
+function genMatrix(){var m=[];for(var i=0;i<ROWS*COLS;i++)m.push(Math.random()<0.5?0:1);return m;}
+function countZ(m){return m.filter(function(x){return x===0}).length;}
+function catFromErr(err){if(err===null)return 'timeout';if(err===0)return 'exact';if(Math.abs(err)===1)return 'borderline';return 'wrong';}
+
+function renderGrid(matrix){
+  var g=el('grid');
+  g.style.gridTemplateColumns='repeat('+COLS+',30px)';
+  g.innerHTML='';
+  g.classList.remove('grid-flash'); void g.offsetWidth; g.classList.add('grid-flash');
+  matrix.forEach(function(v){
+    var d=document.createElement('div');
+    d.className='cell'+(v===0?' z':'');
+    d.textContent=v; g.appendChild(d);
+  });
+}
+
+function buildGridCounter(){
+  var gc=el('gridCounter'); gc.innerHTML='';
+  roundGrids.forEach(function(g,i){
+    var d=document.createElement('div');
+    d.className='gc-dot '+(g.cat==='exact'?'exact':g.cat==='borderline'?'border':'wrong');
+    d.textContent=(i+1);
+    d.title=g.cat+' (submitted '+g.sub+', correct '+g.cor+')';
+    gc.appendChild(d);
+  });
+  if(!roundEnded){
+    var d=document.createElement('div');
+    d.className='gc-dot active';
+    d.textContent=(roundGrids.length+1);
+    gc.appendChild(d);
+  }
+}
+
+function updateRoundSoFar(){
+  if(roundGrids.length===0){el('roundSoFar').textContent='';return;}
+  el('roundSoFar').textContent='Bu turda şimdiye kadar: '+roundExact+' tam doğru · '+roundBorder+' sınır değer · '+roundWrong+' yanlış';
+}
+
+// ═══ NAVIGATION ═══
+function goInstr(){var n=el('pname').value.trim();if(!n){el('pname').focus();return;}pname=n;hide('sw');show('si');}
+function goRoles(){hide('si');show('srs');}
+function selRole(r){role=r;el('rc-w').classList.toggle('selected',r==='worker');el('rc-m').classList.toggle('selected',r==='manager');el('sbtn-start').disabled=false;}
+function startExp(){
+  hide('srs'); round=0;
+  workerEarnings=3.00; managerEarnings=3.00;
+  workerInPool=false; workerWaitingRounds=0;
+  surveyAnswers={}; log=[];
+  if(role==='worker') wNextRound(); else mNextRound();
+}
+
+// ═══ WORKER FLOW ═══
+function wNextRound(){
+  if(round>=ROUNDS){showSurvey();return;}
+
+  if(workerInPool){
+    if(workerWaitingRounds>=workerPoolWaitTarget){
+      workerInPool=false; workerWaitingRounds=0;
+    } else {
+      workerEarnings+=POOL_PAY; workerWaitingRounds++;
+      log.push({r:round+1,role:'worker',cat:'pool',grids:0,exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,bonus:0,earn:POOL_PAY,total:workerEarnings,dec:'pool'});
+      el('poolEarn').textContent='£'+workerEarnings.toFixed(2);
+      var remaining=workerPoolWaitTarget-workerWaitingRounds;
+      var msg=workerPoolWaitTarget>=99?'Henüz yeni bir iş açılmadı. Havuzda beklemeye devam ediyorsunuz.':
+              remaining<=0?'Farklı bir yöneticiyle yeni bir pozisyon açıldı. Bir sonraki turda çalışmaya başlayacaksınız.':
+              'Yeni bir iş açılması bekleniyor. Yaklaşık '+remaining+' tur daha beklemeniz gerekiyor.';
+      el('poolWaitMsg').textContent=msg;
+      show('swu'); return;
+    }
+  }
+
+  roundGrids=[]; roundExact=0; roundBorder=0; roundWrong=0; roundEnded=false;
+  currentMatrix=genMatrix(); currentCorrect=countZ(currentMatrix);
+
+  el('wrl').textContent='Tur '+(round+1)+' / '+ROUNDS;
+  el('wans').value=''; el('wsbtn').disabled=false;
+  el('wtc').textContent=SECS; el('wtc').className='tc';
+  el('gridNum').textContent='Izgara 1';
+  buildDots('wdots'); buildGridCounter(); updateRoundSoFar();
+  hide('miniResult'); renderGrid(currentMatrix);
+  hide('wr'); hide('swu'); show('st');
+  el('wans').focus();
+  t0=Date.now(); clearInterval(tmr);
+  tmr=setInterval(wTick,100);
+}
+
+function wTick(){
+  var elapsed=(Date.now()-t0)/1000;
+  var left=Math.max(0,SECS-elapsed);
+  var pct=left/SECS*100;
+  var bar=el('timerbar');
+  bar.style.width=pct+'%';
+  bar.style.background=left<=10?'#f87171':left<=20?'#f59e0b':'#6366f1';
+  el('wtc').textContent=Math.ceil(left);
+  el('wtc').className='tc'+(left<=10?' red':'');
+  if(left<=0){clearInterval(tmr); wEndRound();}
+}
+
+function wSubmit(){
+  var v=el('wans').value;
+  if(v===''||isNaN(parseInt(v))) return;
+  var sub=parseInt(v);
+  var err=sub-currentCorrect;
+  var cat=catFromErr(err);
+
+  roundGrids.push({cat:cat,sub:sub,cor:currentCorrect,err:err});
+  if(cat==='exact') roundExact++;
+  else if(cat==='borderline') roundBorder++;
+  else roundWrong++;
+
+  var mr=el('miniResult');
+  var isFirstWrong=(cat==='wrong' && roundWrong<MAX_WRONG);
+  mr.className='mini-result '+(cat==='exact'?'mr-exact':cat==='borderline'?'mr-border':'mr-wrong');
+  if(cat==='exact') mr.textContent='✓ Tam doğru! Yeni ızgara geliyor…';
+  else if(cat==='borderline') mr.textContent='≈ Sınır değer (±1). Yeni ızgara geliyor…';
+  else if(isFirstWrong) mr.textContent='✗ Yanlış (1/2) — bir tane daha turu bitirir.';
+  else mr.textContent='✗ 2. yanlış cevap — tur burada bitiyor.';
+  show('miniResult');
+
+  buildGridCounter();
+  updateRoundSoFar();
+
+  if(cat==='wrong' && roundWrong>=MAX_WRONG){
+    clearInterval(tmr);
+    roundEnded=true;
+    el('wsbtn').disabled=true;
+    setTimeout(function(){wEndRound();},900);
+    return;
+  }
+
+  el('wans').value='';
+  currentMatrix=genMatrix(); currentCorrect=countZ(currentMatrix);
+  el('gridNum').textContent='Izgara '+(roundGrids.length+1);
+  setTimeout(function(){
+    hide('miniResult');
+    renderGrid(currentMatrix);
+    buildGridCounter();
+    el('wans').focus();
+  },cat==='wrong'?900:600);
+}
+
+function wEndRound(){
+  clearInterval(tmr);
+  hide('st');
+
+  var rev=roundExact*REV_EXACT + roundBorder*REV_BORDER;
+
+  // Halved bonus simulation
+  var bonusM=0, bonusN=0;
+  if(roundExact>0) bonusM=Math.round((0.05+Math.random()*0.15)*100)/100;
+  if(roundBorder>0) bonusN=Math.round((Math.random()<0.7?Math.random()*0.10:0)*100)/100;
+  var bonus=bonusM*roundExact+bonusN*roundBorder;
+  var earn=BASE_MATCHED+bonus;
+  workerEarnings+=earn;
+  var managerKept=rev-bonus;
+
+  var overallCat=roundExact>0?'exact':roundBorder>0?'borderline':roundWrong>0?'wrong':'timeout';
+  log.push({r:round+1,role:'worker',cat:overallCat,grids:roundGrids.length,
+    exact:roundExact,border:roundBorder,wrong:roundWrong,
+    rev:rev,bonusM:bonusM,bonusN:bonusN,bonus:bonus,earn:earn,total:workerEarnings,dec:null});
+
+  var badgeCls=overallCat==='exact'?'b-exact':overallCat==='borderline'?'b-border':overallCat==='wrong'?'b-wrong':'b-timeout';
+  var badgeTxt=overallCat==='exact'?'Tam doğru':overallCat==='borderline'?'Sınır değer ±1':overallCat==='wrong'?'Yanlış cevap':'Cevap verilmedi';
+  el('wrbadge').innerHTML='<div class="badge '+badgeCls+'">'+badgeTxt+'</div>';
+
+  var det='';
+  det+='<p class="detail">Tamamlanan ızgara: <strong>'+roundGrids.length+'</strong> &nbsp;·&nbsp; ';
+  det+='Tam doğru: <strong style="color:#4ade80">'+roundExact+'</strong> &nbsp;·&nbsp; ';
+  det+='Sınır değer: <strong style="color:#f59e0b">'+roundBorder+'</strong> &nbsp;·&nbsp; ';
+  det+='Yanlış: <strong style="color:#f87171">'+roundWrong+'</strong></p>';
+  det+='<p class="detail">Oluşturulan gelir: <strong>£'+rev.toFixed(2)+'</strong> &nbsp;·&nbsp; Alınan bonus: <strong style="color:#4ade80">£'+bonus.toFixed(2)+'</strong> &nbsp;·&nbsp; Yöneticide kalan: <strong>£'+managerKept.toFixed(2)+'</strong></p>';
+  det+='<p class="detail">Bu turdaki kazanç: <strong style="color:#4ade80">£'+earn.toFixed(2)+'</strong> (£0.10 baz + £'+bonus.toFixed(2)+' bonus) &nbsp;·&nbsp; Toplam: <strong style="color:#4ade80">£'+workerEarnings.toFixed(2)+'</strong></p>';
+  el('wrdetail').innerHTML=det;
+
+  var rem=ROUNDS-round-1;
+  if(rem===0){
+    el('wrprompt').innerHTML='<p class="detail">Bu son turdu.</p>';
+    el('wrbtns').innerHTML='<button class="btn btn-primary" onclick="wFinR()">Devam →</button>';
+  } else {
+    el('wrprompt').innerHTML='<p class="detail"><strong>Devam mı, Ayrıl mı?</strong><br>Devam: aynı yöneticiyle sonraki tur.<br>Ayrıl: işsizlik havuzu (tur başına £0.10), en az 1 tur sonra farklı yöneticiyle eşleşme.<br><span style="color:#6b7280;font-size:.78rem">'+rem+' tur kaldı.</span></p>';
+    el('wrbtns').innerHTML='<button class="btn btn-stay" onclick="wDec(\'continue\')">Devam →</button><button class="btn btn-leave" onclick="wDec(\'leave\')">Ayrıl</button>';
+  }
+  show('wr');
+}
+
+function wDec(d){
+  log[log.length-1].dec=d;
+  round++;
+  hide('wr');
+  if(d==='leave'){workerInPool=true; workerWaitingRounds=0; workerPoolWaitTarget=drawWaitRounds();}
+  wNextRound();
+}
+function wEndU(){round++; hide('swu'); wNextRound();}
+function wFinR(){round++; hide('wr'); showSurvey();}
+
+// ═══ MANAGER FLOW ═══
+function genWorkerOutcomeMulti(){
+  var exact=0,border=0,wrong=0;
+  var maxGrids=2+Math.floor(Math.random()*3);
+  for(var i=0;i<maxGrids;i++){
+    var r=Math.random();
+    if(r<0.55){exact++;}
+    else if(r<0.80){border++;}
+    else{wrong++; if(wrong>=MAX_WRONG) break;}
+  }
+  var rev=exact*REV_EXACT+border*REV_BORDER;
+  return {exact:exact,border:border,wrong:wrong,rev:rev};
+}
+
+function mNextRound(){
+  if(round>=ROUNDS){showSurvey();return;}
+
+  el('mrl').textContent='Tur '+(round+1)+' / '+ROUNDS;
+  el('mEarnRunning').textContent='Toplam: £'+managerEarnings.toFixed(2);
+  buildDots('mdots');
+
+  if(mW1InPool && mW1ReturnRound>0 && round>=mW1ReturnRound){mW1InPool=false;}
+  if(mW2InPool && mW2ReturnRound>0 && round>=mW2ReturnRound){mW2InPool=false;}
+
+  if(mW1InPool){setupPoolWorker(1);}
+  else{var w1=genWorkerOutcomeMulti(); mW1={exact:w1.exact,border:w1.border,wrong:w1.wrong,rev:w1.rev,bonusM:0,bonusN:0,totalBonus:0}; setupActiveWorker(1,w1);}
+  if(mW2InPool){setupPoolWorker(2);}
+  else{var w2=genWorkerOutcomeMulti(); mW2={exact:w2.exact,border:w2.border,wrong:w2.wrong,rev:w2.rev,bonusM:0,bonusN:0,totalBonus:0}; setupActiveWorker(2,w2);}
+
+  updateEarnPreview();
+  hide('smr'); show('sm');
+}
+
+function setupActiveWorker(n,w){
+  el('w'+n+'Panel').classList.remove('pool');
+  hide('w'+n+'PoolSection'); show('w'+n+'ActiveSection');
+  var hasSomething=w.exact>0||w.border>0;
+  var badgeTxt=w.exact>0?w.exact+'TD'+(w.border>0?'+'+w.border+'SD':''):w.border>0?w.border+'SD':'Gelir yok';
+  var badgeCls=w.exact>0?'cb-exact':w.border>0?'cb-border':'cb-wrong';
+  el('w'+n+'CatBadge').innerHTML='<span class="cat-badge '+badgeCls+'">'+badgeTxt+'</span>';
+  el('w'+n+'Exact').textContent=w.exact;
+  el('w'+n+'Border').textContent=w.border;
+  el('w'+n+'Wrong').textContent=w.wrong;
+  el('w'+n+'Rev').textContent='£'+w.rev.toFixed(2);
+  el('w'+n+'SliderM').value=0; el('w'+n+'BonusValM').textContent='£0.00';
+  el('w'+n+'SliderN').value=0; el('w'+n+'BonusValN').textContent='£0.00';
+  if(!hasSomething){show('w'+n+'NoBonus'); hide('w'+n+'BonusSectionM'); hide('w'+n+'BonusSectionN');}
+  else{hide('w'+n+'NoBonus'); show('w'+n+'BonusSectionM'); show('w'+n+'BonusSectionN');}
+  updateWorkerEarnPreview(n);
+}
+
+function setupPoolWorker(n){
+  el('w'+n+'Panel').classList.add('pool');
+  hide('w'+n+'ActiveSection'); show('w'+n+'PoolSection');
+  el('w'+n+'CatBadge').innerHTML='<span class="cat-badge cb-timeout">Havuzda</span>';
+  if(n===1) mW1={exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,totalBonus:0};
+  else mW2={exact:0,border:0,wrong:0,rev:0,bonusM:0,bonusN:0,totalBonus:0};
+}
+
+function updateBonus(n,type){
+  var v=parseInt(el('w'+n+'Slider'+type).value)/100;
+  el('w'+n+'BonusVal'+type).textContent='£'+v.toFixed(2);
+  if(n===1){if(type==='M')mW1.bonusM=v;else mW1.bonusN=v;}
+  else{if(type==='M')mW2.bonusM=v;else mW2.bonusN=v;}
+  updateWorkerEarnPreview(n);
+  updateEarnPreview();
+}
+
+function updateWorkerEarnPreview(n){
+  var d=(n===1?mW1:mW2);
+  var tb=d.bonusM*d.exact+d.bonusN*d.border;
+  var yk=d.rev-tb;
+  el('w'+n+'TotalBonus').textContent='£'+tb.toFixed(2);
+  el('w'+n+'YouKeep').textContent='£'+Math.max(0,yk).toFixed(2);
+  d.totalBonus=tb;
+}
+
+function updateEarnPreview(){
+  var tb=(mW1.totalBonus||0)+(mW2.totalBonus||0);
+  var tr=(mW1.rev||0)+(mW2.rev||0);
+  el('totalBonus').textContent='£'+tb.toFixed(2);
+  el('yourEarn').textContent='£'+(tr-tb).toFixed(2);
+}
+
+function mConfirm(){
+  var totalRev=(mW1.rev||0)+(mW2.rev||0);
+  var totalBonus=(mW1.totalBonus||0)+(mW2.totalBonus||0);
+  var earn=totalRev-totalBonus;
+  managerEarnings+=earn;
+
+  log.push({r:round+1,role:'manager',
+    w1exact:mW1.exact,w1border:mW1.border,w1rev:mW1.rev,w1bonusM:mW1.bonusM,w1bonusN:mW1.bonusN,w1bonus:mW1.totalBonus,
+    w2exact:mW2.exact,w2border:mW2.border,w2rev:mW2.rev,w2bonusM:mW2.bonusM,w2bonusN:mW2.bonusN,w2bonus:mW2.totalBonus,
+    totalRev:totalRev,totalBonus:totalBonus,earn:earn,total:managerEarnings});
+
+  var html='<div class="earn-preview" style="margin-top:0">';
+  html+='<div class="ep-item"><div class="epl">Toplam gelir</div><div class="epv">£'+totalRev.toFixed(2)+'</div></div>';
+  html+='<div class="ep-item"><div class="epl">Ödenen bonus</div><div class="epv amber">£'+totalBonus.toFixed(2)+'</div></div></div>';
+  html+='<div style="text-align:center;margin-top:1rem"><div style="font-size:.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Bu turdaki kazancınız</div>';
+  html+='<div style="font-family:monospace;font-size:2rem;font-weight:700;color:#4ade80">£'+earn.toFixed(2)+'</div></div>';
+  el('mrSummary').innerHTML=html;
+
+  var w1Leave=false,w2Leave=false;
+  if(!mW1InPool && mW1.rev>0){var r1=mW1.totalBonus/mW1.rev; w1Leave=Math.random()>(0.50+r1*0.45);}
+  else if(!mW1InPool){w1Leave=Math.random()<0.40;}
+  if(!mW2InPool && mW2.rev>0){var r2=mW2.totalBonus/mW2.rev; w2Leave=Math.random()>(0.50+r2*0.45);}
+  else if(!mW2InPool){w2Leave=Math.random()<0.40;}
+
+  if(w1Leave){mW1InPool=true; var d1=drawReplacementDelay(); mW1ReturnRound=(d1>=99)?-1:(round+d1);}
+  if(w2Leave){mW2InPool=true; var d2=drawReplacementDelay(); mW2ReturnRound=(d2>=99)?-1:(round+d2);}
+
+  var leaveInfo='<p class="detail">';
+  if(w1Leave){leaveInfo+='İşçi 1 ayrıldı. '+(mW1ReturnRound>0&&mW1ReturnRound<ROUNDS?'~'+(mW1ReturnRound-round)+' tur içinde yeni işçi bekleniyor. ':'Yeni işçi beklenmiyor. ');}
+  if(w2Leave){leaveInfo+='İşçi 2 ayrıldı. '+(mW2ReturnRound>0&&mW2ReturnRound<ROUNDS?'~'+(mW2ReturnRound-round)+' tur içinde yeni işçi bekleniyor.':'Yeni işçi beklenmiyor.');}
+  if(!w1Leave&&!w2Leave){leaveInfo+='Her iki işçi de devam etmeyi seçti.';}
+  leaveInfo+='</p>';
+  el('mrLeaveInfo').innerHTML=leaveInfo;
+
+  hide('sm'); show('smr');
+}
+
+function mNextR(){
+  round++;
+  hide('smr');
+  if(round>=ROUNDS) showSurvey();
+  else mNextRound();
+}
+
+// ═══ SURVEY ═══
+function buildSurvey(){
+  var qs=role==='worker'?SURVEY_WORKER:SURVEY_MANAGER;
+  var html='';
+  qs.forEach(function(q,qi){
+    html+='<div class="survey-q"><div class="sq-label">'+(qi+1)+'. '+q.q+'</div><div class="sq-opts">';
+    q.opts.forEach(function(opt,oi){
+      var checked=surveyAnswers[q.id]===oi?'selected':'';
+      html+='<div class="sq-opt '+checked+'" onclick="selectOpt(this,\''+q.id+'\','+oi+')">';
+      html+='<input type="radio" name="'+q.id+'" value="'+oi+'" '+(checked?'checked':'')+' style="pointer-events:none"><span>'+opt+'</span></div>';
+    });
+    html+='</div></div>';
+  });
+  el('surveyQuestions').innerHTML=html;
+}
+
+function selectOpt(lbl,qid,oi){
+  surveyAnswers[qid]=oi;
+  var grp=lbl.parentNode;
+  var opts=grp.querySelectorAll('.sq-opt');
+  for(var i=0;i<opts.length;i++){
+    opts[i].classList.remove('selected');
+    var radio=opts[i].querySelector('input[type=radio]');
+    if(radio) radio.checked=false;
+  }
+  lbl.classList.add('selected');
+  var lr=lbl.querySelector('input[type=radio]');
+  if(lr) lr.checked=true;
+  el('survey-err').style.display='none';
+}
+
+function showSurvey(){
+  hide('wr'); hide('smr'); hide('sm'); hide('st'); hide('swu');
+  buildSurvey();
+  show('survey');
+}
+
+function submitSurvey(){
+  var qs=role==='worker'?SURVEY_WORKER:SURVEY_MANAGER;
+  for(var i=0;i<qs.length;i++){
+    if(surveyAnswers[qs[i].id]===undefined){
+      el('survey-err').style.display='block';
+      return;
+    }
+  }
+  hide('survey');
+  showFinal();
+}
+
+// ═══ FINAL ═══
+function showFinal(){
+  hide('st');hide('sm');hide('smr');hide('wr');hide('swu');hide('survey');
+  show('sf');
+
+  var stats='';
+  if(role==='worker'){
+    var rounds=log.filter(function(l){return l.role==='worker';});
+    var totExact=rounds.reduce(function(a,r){return a+(r.exact||0);},0);
+    var totBorder=rounds.reduce(function(a,r){return a+(r.border||0);},0);
+    var totWrong=rounds.reduce(function(a,r){return a+(r.wrong||0);},0);
+    var totGrids=rounds.reduce(function(a,r){return a+(r.grids||0);},0);
+    var leftCount=rounds.filter(function(l){return l.dec==='leave';}).length;
+    stats='<div class="sc gr"><div class="v">£'+workerEarnings.toFixed(2)+'</div><div class="l">Toplam kazanç</div></div>';
+    stats+='<div class="sc bl"><div class="v">'+totGrids+'</div><div class="l">Toplam ızgara</div></div>';
+    stats+='<div class="sc gr"><div class="v">'+totExact+'</div><div class="l">Tam doğru</div></div>';
+    stats+='<div class="sc yw"><div class="v">'+totBorder+'</div><div class="l">Sınır değer</div></div>';
+    stats+='<div class="sc rd"><div class="v">'+totWrong+'</div><div class="l">Yanlış</div></div>';
+    stats+='<div class="sc am"><div class="v">'+leftCount+'</div><div class="l">Ayrılma sayısı</div></div>';
+  } else {
+    var rounds=log.filter(function(l){return l.role==='manager';});
+    stats='<div class="sc gr"><div class="v">£'+managerEarnings.toFixed(2)+'</div><div class="l">Toplam kazanç</div></div>';
+    stats+='<div class="sc bl"><div class="v">'+rounds.length+'</div><div class="l">Tur sayısı</div></div>';
+    var avgB=rounds.reduce(function(a,r){return a+r.totalBonus;},0)/Math.max(rounds.length,1);
+    stats+='<div class="sc yw"><div class="v">£'+avgB.toFixed(2)+'</div><div class="l">Ort. bonus</div></div>';
+    var avgR=rounds.reduce(function(a,r){return a+r.totalRev;},0)/Math.max(rounds.length,1);
+    stats+='<div class="sc gr"><div class="v">£'+avgR.toFixed(2)+'</div><div class="l">Ort. gelir</div></div>';
+  }
+  el('finalStats').innerHTML=stats;
+
+  var verdict='';
+  if(role==='worker'){
+    if(workerEarnings>=7) verdict='<div class="verd good">Güçlü oturum — beklenen kazancın üzerinde.</div>';
+    else if(workerEarnings>=5) verdict='<div class="verd warn">Orta düzey oturum — beklenen kazanca yakın.</div>';
+    else verdict='<div class="verd bad">Beklenenden düşük — ızgara boyutu veya süreyi ayarlamayı düşünün.</div>';
+  } else {
+    var ep=managerEarnings-3;
+    if(ep>=2) verdict='<div class="verd good">Kârlı yönetici oturumu.</div>';
+    else if(ep>=0) verdict='<div class="verd warn">Orta düzey kâr — yüksek bonus geliri düşürdü.</div>';
+    else verdict='<div class="verd bad">Alışılmadık — elde edilen gelirden fazlası ödendi.</div>';
+  }
+  el('finalVerdict').innerHTML=verdict;
+
+  var tbl=el('logTable');
+  if(role==='worker'){
+    tbl.innerHTML='<thead><tr><th>Tur</th><th>Izgara</th><th>TD</th><th>SD</th><th>Yan.</th><th>Gelir</th><th>BM</th><th>BN</th><th>Bonus</th><th>Kazanç</th><th>Toplam</th><th>Karar</th></tr></thead><tbody></tbody>';
+    var tb=tbl.querySelector('tbody');
+    log.forEach(function(l){
+      var dec=l.dec==='continue'?'devam':l.dec==='leave'?'ayrıl':l.dec==='pool'?'havuz':'-';
+      var row='<tr><td>'+l.r+'</td><td>'+(l.grids||0)+'</td><td>'+(l.exact||0)+'</td><td>'+(l.border||0)+'</td><td>'+(l.wrong||0)+'</td><td>£'+(l.rev||0).toFixed(2)+'</td><td>£'+(l.bonusM||0).toFixed(2)+'</td><td>£'+(l.bonusN||0).toFixed(2)+'</td><td>£'+(l.bonus||0).toFixed(2)+'</td><td>£'+l.earn.toFixed(2)+'</td><td>£'+l.total.toFixed(2)+'</td><td>'+dec+'</td></tr>';
+      tb.innerHTML+=row;
+    });
+  } else {
+    tbl.innerHTML='<thead><tr><th>Tur</th><th>İ1 TD</th><th>İ1 SD</th><th>İ1 Gelir</th><th>İ1 BM</th><th>İ1 BN</th><th>İ2 TD</th><th>İ2 SD</th><th>İ2 Gelir</th><th>İ2 BM</th><th>İ2 BN</th><th>Kazanç</th><th>Toplam</th></tr></thead><tbody></tbody>';
+    var tb=tbl.querySelector('tbody');
+    log.forEach(function(l){
+      var row='<tr><td>'+l.r+'</td><td>'+l.w1exact+'</td><td>'+l.w1border+'</td><td>£'+l.w1rev.toFixed(2)+'</td><td>£'+l.w1bonusM.toFixed(2)+'</td><td>£'+l.w1bonusN.toFixed(2)+'</td><td>'+l.w2exact+'</td><td>'+l.w2border+'</td><td>£'+l.w2rev.toFixed(2)+'</td><td>£'+l.w2bonusM.toFixed(2)+'</td><td>£'+l.w2bonusN.toFixed(2)+'</td><td>£'+l.earn.toFixed(2)+'</td><td>£'+l.total.toFixed(2)+'</td></tr>';
+      tb.innerHTML+=row;
+    });
+  }
+
+  // Survey log
+  var qs=role==='worker'?SURVEY_WORKER:SURVEY_MANAGER;
+  var existing=el('surveyLog');
+  if(existing) existing.parentNode.removeChild(existing);
+  var div=document.createElement('div'); div.id='surveyLog';
+  var shtml='<h2 style="font-size:.95rem;color:#9ca3af;letter-spacing:.05em;text-transform:uppercase;margin-top:1.5rem">Anket Cevapları</h2>';
+  qs.forEach(function(q){
+    var ai=surveyAnswers[q.id];
+    var ans=ai!==undefined?q.opts[ai]:'—';
+    shtml+='<p class="detail" style="margin-top:.5rem"><strong>'+q.q+'</strong><br>'+ans+'</p>';
+  });
+  div.innerHTML=shtml;
+  el('sf').insertBefore(div,el('sf').querySelector('.dl-area'));
+}
+
+function downloadCSV(){
+  var headers,rows;
+  var qs=role==='worker'?SURVEY_WORKER:SURVEY_MANAGER;
+  var surveyCols=qs.map(function(q){return 'survey_'+q.id;});
+  var surveyVals=qs.map(function(q){return surveyAnswers[q.id]!==undefined?surveyAnswers[q.id]:'';});
+  if(role==='worker'){
+    headers=['name','round','grids_completed','exact','borderline','wrong','revenue','bonusM','bonusN','total_bonus','earn','total','decision'].concat(surveyCols);
+    rows=log.map(function(l,i){
+      var base=[pname,l.r,l.grids||0,l.exact||0,l.border||0,l.wrong||0,l.rev||0,l.bonusM||0,l.bonusN||0,l.bonus||0,l.earn,l.total,l.dec||''];
+      return i===0?base.concat(surveyVals):base.concat(qs.map(function(){return '';}));
+    });
+  } else {
+    headers=['name','round','w1_exact','w1_border','w1_rev','w1_bonusM','w1_bonusN','w1_total_bonus','w2_exact','w2_border','w2_rev','w2_bonusM','w2_bonusN','w2_total_bonus','total_rev','total_bonus','earn','total'].concat(surveyCols);
+    rows=log.map(function(l,i){
+      var base=[pname,l.r,l.w1exact,l.w1border,l.w1rev,l.w1bonusM,l.w1bonusN,l.w1bonus,l.w2exact,l.w2border,l.w2rev,l.w2bonusM,l.w2bonusN,l.w2bonus,l.totalRev,l.totalBonus,l.earn,l.total];
+      return i===0?base.concat(surveyVals):base.concat(qs.map(function(){return '';}));
+    });
+  }
+  var csv=headers.join(',')+'\n'+rows.map(function(r){return r.join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url;
+  a.download='pilot_v5_TR_'+role+'_'+pname.replace(/[^a-z0-9]/gi,'_')+'_'+Date.now()+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  el('dlok').style.display='block';
+}
+</script>
+</body>
+</html>
