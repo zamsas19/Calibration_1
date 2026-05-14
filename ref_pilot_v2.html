@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counting Task — Pilot Study</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0f1117;color:#e8e4d9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
+
+.card{background:#1a1d27;border:.5px solid #2a2d3a;border-radius:10px;padding:1.75rem;width:100%;max-width:640px;margin-bottom:1rem}
+.card h2{font-size:1.2rem;font-weight:600;margin-bottom:.75rem;color:#e8e4d9}
+.card p{font-size:.875rem;color:#9ca3af;line-height:1.7;margin-bottom:.65rem}
+.card p strong{color:#e8e4d9}
+.card p:last-of-type{margin-bottom:0}
+
+.hidden{display:none!important}
+
+input[type=text]{background:#222633;border:1px solid #2a2d3a;border-radius:6px;padding:.5rem .75rem;color:#e8e4d9;font-size:.9rem;outline:none;font-family:inherit;width:100%}
+input[type=text]:focus{border-color:#6366f1}
+input[type=number]{background:#222633;border:1px solid #2a2d3a;border-radius:6px;padding:.5rem .75rem;color:#e8e4d9;font-size:1.1rem;font-weight:700;outline:none;font-family:"SF Mono",Monaco,monospace;width:100px;text-align:center;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]:focus{border-color:#6366f1}
+
+.btn{padding:.6rem 1.4rem;border-radius:6px;font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:opacity .15s,transform .1s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-primary{background:#6366f1;color:white}
+.btn-primary:hover:not(:disabled){background:#4f46e5}
+.btn-grey{background:#2a2d3a;color:#cbd5e1;border:.5px solid #374151}
+.row{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-top:1rem}
+
+/* Info screen */
+.info-badge{display:inline-block;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#818cf8;font-size:.72rem;padding:.3rem .7rem;border-radius:4px;font-weight:600;letter-spacing:.04em;margin-bottom:.75rem}
+.spec-row{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0 .75rem}
+.spec-chip{background:#222633;border:1px solid #2a2d3a;border-radius:5px;padding:.3rem .7rem;font-size:.78rem;color:#e8e4d9}
+.spec-chip span{color:#818cf8;font-weight:700}
+
+/* Progress */
+.prog-bar{height:4px;background:#2a2d3a;border-radius:2px;margin-bottom:1rem;overflow:hidden}
+.prog-fill{height:100%;background:#6366f1;border-radius:2px;transition:width .4s ease}
+
+/* Round indicator */
+.round-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.block-label{display:inline-block;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#818cf8;font-size:.72rem;padding:.25rem .65rem;border-radius:4px;font-family:"SF Mono",Monaco,monospace;letter-spacing:.05em}
+.round-pip{font-size:.72rem;color:#6b7280;font-family:"SF Mono",Monaco,monospace}
+
+/* Timer */
+.timer-wrap{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.timer-label{font-size:.75rem;color:#6b7280}
+.timer-num{font-family:"SF Mono",Monaco,monospace;font-size:1.4rem;font-weight:700;color:#6366f1;min-width:3ch;text-align:right;transition:color .2s}
+.timer-num.warn{color:#f59e0b}
+.timer-num.danger{color:#f87171}
+.timer-bar{height:4px;background:#2a2d3a;border-radius:2px;margin-bottom:1rem;overflow:hidden}
+.timer-fill{height:100%;background:#6366f1;border-radius:2px;transition:width .12s linear,background .3s}
+
+/* Grid */
+.grid-wrap{display:flex;justify-content:center;margin-bottom:1.25rem;overflow-x:auto}
+.grid{display:inline-grid;gap:3px;background:#222633;border:1px solid #2a2d3a;border-radius:8px;padding:10px}
+.cell{display:flex;align-items:center;justify-content:center;font-family:"SF Mono",Monaco,monospace;font-weight:600;color:#4b5563;border-radius:3px}
+.cell.z{color:#6366f1}
+
+/* Answer */
+.ans-row{display:flex;gap:.75rem;align-items:center;justify-content:center;margin-bottom:.5rem}
+.ans-label{font-size:.85rem;color:#9ca3af;white-space:nowrap}
+
+/* Feedback */
+.feedback{text-align:center;font-size:.85rem;font-weight:600;padding:.4rem .75rem;border-radius:6px;margin-bottom:.5rem}
+.fb-exact {background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
+.fb-border{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
+.fb-wrong {background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25)}
+.fb-timeout{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.2)}
+
+/* Between-round chips */
+.chip-row{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0 .75rem}
+.chip{font-size:.72rem;padding:.2rem .55rem;border-radius:4px;font-weight:600}
+.chip-e{background:rgba(74,222,128,.15);color:#4ade80}
+.chip-b{background:rgba(245,158,11,.15);color:#f59e0b}
+.chip-w{background:rgba(248,113,113,.15);color:#f87171}
+.chip-t{background:rgba(148,163,184,.12);color:#94a3b8}
+
+/* Stats */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.5rem 0}
+.stat-cell{background:#222633;border-radius:6px;padding:.6rem;text-align:center}
+.stat-cell .sv{font-family:"SF Mono",Monaco,monospace;font-size:1.2rem;font-weight:700;margin-bottom:.15rem}
+.stat-cell .sl{font-size:.6rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em}
+.sv.green{color:#4ade80} .sv.amber{color:#f59e0b} .sv.red{color:#f87171} .sv.blue{color:#6366f1}
+
+.sep{border-top:1px solid #2a2d3a;margin:.875rem 0}
+
+/* Summary table */
+table{width:100%;border-collapse:collapse;font-size:.78rem;margin:.5rem 0}
+table th,table td{padding:.45rem .55rem;border-bottom:1px solid #2a2d3a;text-align:left}
+table th{background:#222633;color:#9ca3af;font-weight:600;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em}
+table tr:last-child td{border-bottom:none}
+table tr:hover td{background:rgba(99,102,241,.04)}
+</style>
+</head>
+<body>
+
+<!-- ══ WELCOME ══ -->
+<div id="sw" class="card">
+  <h2>Welcome — and thank you for helping!</h2>
+  <p>We are running a short pilot study to test a simple counting task. We want to understand how many grids people can count under different conditions — different grid sizes and different time limits.</p>
+  <p><strong>This is not a test.</strong> There are no right or wrong outcomes. We are just curious about how people naturally perform, so please relax and do your best.</p>
+  <p>The whole thing takes around <strong>8–10 minutes</strong>. You will work through <strong>five short rounds</strong>, each slightly different.</p>
+  <p>Please type any name or label you would like to go by:</p>
+  <div class="row">
+    <input type="text" id="pid" placeholder="Your name or initials" style="flex:1">
+    <button class="btn btn-primary" onclick="goInstr()">Let's go →</button>
+  </div>
+</div>
+
+<!-- ══ GENERAL INSTRUCTIONS ══ -->
+<div id="si" class="card hidden">
+  <h2>How it works</h2>
+  <p>Each round, you will see a grid of numbers. Every cell in the grid is either a <strong style="color:#6366f1">0</strong> or a <strong style="color:#9ca3af">1</strong>.</p>
+  <p>Your job is simple: <strong>count how many zeros</strong> are in the grid, type your answer in the box, and press Submit.</p>
+  <p>A timer runs at the top of each screen. Try to answer before it reaches zero — but if you run out of time, that is okay, we just note it down and move on.</p>
+  <p>After you submit, you will see a quick result (<em>exact</em>, <em>very close</em>, or <em>not quite</em>) and then a brief screen between rounds before the next one starts.</p>
+  <p style="color:#6b7280;font-size:.82rem">You will not be penalised for wrong answers. Just count as carefully as you can.</p>
+  <div class="row" style="justify-content:center">
+    <button class="btn btn-primary" onclick="startTask()">Start the task →</button>
+  </div>
+</div>
+
+<!-- ══ BETWEEN-BLOCK INFO SCREEN ══ -->
+<div id="sinfo" class="card hidden">
+  <div class="info-badge" id="infoBadge">Round 1 of 5</div>
+  <h2 id="infoTitle">Up next</h2>
+  <p id="infoDesc"></p>
+  <div class="spec-row" id="infoSpecs"></div>
+  <p id="infoRounds" style="font-size:.82rem;color:#9ca3af"></p>
+  <div class="row" style="justify-content:center;margin-top:1.25rem">
+    <button class="btn btn-primary" onclick="launchRound()">I'm ready →</button>
+  </div>
+</div>
+
+<!-- ══ TASK ══ -->
+<div id="st" class="card hidden">
+  <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  <div class="round-meta">
+    <span class="block-label" id="blockLabel">Round 1 · Trial 1/2</span>
+    <span class="round-pip" id="roundPip"></span>
+  </div>
+  <div class="timer-wrap">
+    <span class="timer-label">Time remaining</span>
+    <span class="timer-num" id="timerNum">45</span>
+  </div>
+  <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+  <div class="grid-wrap"><div class="grid" id="grid"></div></div>
+  <div id="feedback" class="feedback hidden"></div>
+  <div class="ans-row">
+    <span class="ans-label">How many zeros?</span>
+    <input type="number" id="ans" min="0" max="300" placeholder="?">
+    <button id="btnSubmit" class="btn btn-primary" onclick="submitAns()">Submit</button>
+  </div>
+</div>
+
+<!-- ══ BETWEEN ROUNDS (within same block) ══ -->
+<div id="sbr" class="card hidden">
+  <h2 id="brtitle">Trial complete</h2>
+  <div class="chip-row" id="brchips"></div>
+  <div class="stat-grid" id="brstats"></div>
+  <div class="sep"></div>
+  <p id="brnext" style="font-size:.85rem;color:#9ca3af"></p>
+  <div class="row" style="justify-content:center;margin-top:.75rem">
+    <button class="btn btn-primary" id="btnBRNext" onclick="nextRound()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══ BETWEEN BLOCKS (block summary + info for next) ══ -->
+<div id="sbl" class="card hidden">
+  <h2 id="blTitle">Section complete</h2>
+  <p style="font-size:.82rem;color:#9ca3af;margin-bottom:.5rem">Here is how you did across all trials in this section:</p>
+  <div class="chip-row" id="blChips"></div>
+  <div class="stat-grid" id="blStats"></div>
+  <div class="sep"></div>
+  <div id="blNext"></div>
+  <div class="row" style="justify-content:center;margin-top:1rem">
+    <button class="btn btn-primary" id="btnBlNext" onclick="nextBlock()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══ FINAL ══ -->
+<div id="sf" class="card hidden">
+  <h2 style="color:#4ade80">All done — thank you!</h2>
+  <p style="font-size:.875rem;color:#9ca3af;margin-bottom:.75rem">Here is a summary of how you did across all five rounds. Your results will help us choose the best setup for the full study.</p>
+  <table>
+    <thead><tr>
+      <th>Round</th><th>Grid</th><th>Time</th><th>Trials</th>
+      <th>Exact</th><th>Close</th><th>Wrong</th><th>No answer</th><th>Avg time</th>
+    </tr></thead>
+    <tbody id="finalBody"></tbody>
+  </table>
+  <div class="sep"></div>
+  <p style="font-size:.85rem;color:#9ca3af;margin-bottom:.75rem">Please click <strong style="color:#e8e4d9">Send results</strong> to share your data with us. It only takes a moment.</p>
+  <div class="row" style="justify-content:center">
+    <button class="btn btn-primary" id="btnSave" onclick="saveData()">📊 Send results</button>
+    <button class="btn btn-grey" onclick="downloadCSV()">⬇ Save as file</button>
+  </div>
+  <p id="saveMsg" style="font-size:.78rem;text-align:center;margin-top:.5rem;display:none"></p>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzknkQ9g-dAmuVLzIs2nPFW2Urv9qS_GYLB-_ye3ktzM85gSnrLbNW-JVGypmsFMSFY9w/exec';
+
+var ZERO_PROB = 0.42;
+
+// blocks: each has N rounds inside it
+var BLOCKS = [
+  {
+    id:'A', rows:7, cols:7, secs:45, rounds:2, multi:true,
+    label:'Small grid, less time',
+    desc:'You will see a 7×7 grid — 49 numbers in total. You have <strong>45 seconds</strong>. Because the grid refills after each answer, you will try <strong>2 grids</strong> in a row within the time.',
+    specs:['7×7 grid','45 seconds','2 grids']
+  },
+  {
+    id:'B', rows:10, cols:10, secs:45, rounds:3, multi:false,
+    label:'Larger grid, less time',
+    desc:'Now the grid is bigger — <strong>10×10</strong>, which means 100 numbers. You still have <strong>45 seconds</strong>. One grid per trial, and you will do <strong>3 separate trials</strong>.',
+    specs:['10×10 grid','45 seconds','3 trials']
+  },
+  {
+    id:'C', rows:7, cols:7, secs:60, rounds:2, multi:true,
+    label:'Small grid, more time',
+    desc:'Back to the <strong>7×7 grid</strong>, but now you have a full <strong>60 seconds</strong>. The grid refills each time you answer, so try to do as many as you can. <strong>2 grids</strong> to attempt.',
+    specs:['7×7 grid','60 seconds','2 grids']
+  },
+  {
+    id:'D', rows:10, cols:10, secs:60, rounds:3, multi:false,
+    label:'Larger grid, more time',
+    desc:'The <strong>10×10 grid</strong> again, but with <strong>60 seconds</strong> this time. One grid per trial, <strong>3 separate trials</strong>.',
+    specs:['10×10 grid','60 seconds','3 trials']
+  },
+  {
+    id:'E', rows:10, cols:15, secs:60, rounds:2, multi:false,
+    label:'Wide grid — the original design',
+    desc:'This is the classic version of the task used in academic research. The grid is wider — <strong>10×15</strong>, which means 150 numbers. You have <strong>60 seconds</strong>. One grid per trial, <strong>2 trials</strong>.',
+    specs:['10×15 grid','60 seconds','2 trials']
+  },
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+var pid = '';
+var blockIdx = 0;       // which block (0–4)
+var roundIdx = 0;       // which round within block (0–N)
+var blockTrials = [];   // all trials for current block
+var roundTrials = [];   // trials for current round (for multi-grid)
+var allResults  = [];   // one entry per block, pushed at block end
+
+var matrix = [], correct = 0;
+var t0 = null, tmr = null;
+var gridsThisRound = 0;
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function el(id){ return document.getElementById(id); }
+function show(id){ el(id).classList.remove('hidden'); }
+function hide(id){ el(id).classList.add('hidden'); }
+function hideAll(){ ['sw','si','sinfo','st','sbr','sbl','sf'].forEach(hide); }
+
+function genMatrix(rows, cols){
+  var m = [];
+  for(var i = 0; i < rows * cols; i++)
+    m.push(Math.random() < ZERO_PROB ? 0 : 1);
+  return m;
+}
+function countZ(m){ return m.filter(function(x){ return x===0; }).length; }
+function catFromErr(err){
+  if(err===null) return 'timeout';
+  if(err===0) return 'exact';
+  if(Math.abs(err)===1) return 'borderline';
+  return 'wrong';
+}
+
+function renderGrid(matrix, rows, cols){
+  var g = el('grid');
+  var sz = cols <= 7 ? 30 : cols <= 10 ? 23 : 19;
+  g.style.gridTemplateColumns = 'repeat('+cols+', '+sz+'px)';
+  g.innerHTML = '';
+  matrix.forEach(function(v){
+    var d = document.createElement('div');
+    d.className = 'cell'+(v===0?' z':'');
+    d.style.cssText = 'width:'+sz+'px;height:'+sz+'px;font-size:'+(sz<=19?'.72':sz<=23?'.8':'.9')+'rem';
+    d.textContent = v;
+    g.appendChild(d);
+  });
+}
+
+function totalProgress(){
+  // fraction of total rounds done
+  var done = 0, total = 0;
+  BLOCKS.forEach(function(b,i){
+    total += b.rounds;
+    if(i < blockIdx) done += b.rounds;
+    else if(i === blockIdx) done += roundIdx;
+  });
+  return total > 0 ? done/total : 0;
+}
+
+function makeChips(trials){
+  return trials.map(function(t,i){
+    var cls = t.cat==='exact'?'chip-e':t.cat==='borderline'?'chip-b':t.cat==='wrong'?'chip-w':'chip-t';
+    var sym = t.cat==='exact'?'✓':t.cat==='borderline'?'≈':t.cat==='wrong'?'✗':'⏱';
+    return '<span class="chip '+cls+'">'+sym+' #'+(i+1)+'</span>';
+  }).join('');
+}
+
+function makeStats(trials){
+  var ne = trials.filter(function(t){return t.cat==='exact';}).length;
+  var nb = trials.filter(function(t){return t.cat==='borderline';}).length;
+  var nw = trials.filter(function(t){return t.cat==='wrong';}).length;
+  var nt = trials.filter(function(t){return t.cat==='timeout';}).length;
+  var times = trials.filter(function(t){return t.elapsed!==null;}).map(function(t){return t.elapsed;});
+  var avg = times.length ? (times.reduce(function(a,b){return a+b;},0)/times.length).toFixed(1)+'s' : '—';
+  return sc(ne,'Exact','green') + sc(nb,'Very close','amber') + sc(nw+nt,'Missed','red') +
+         sc(trials.length,'Total','blue') + sc(avg,'Avg time','blue') +
+         sc(trials.length?(trials.reduce(function(a,t){return a+t.correct;},0)/trials.length).toFixed(1):'—','Avg zeros','blue');
+}
+
+function sc(v,l,c){
+  return '<div class="stat-cell"><div class="sv '+c+'">'+v+'</div><div class="sl">'+l+'</div></div>';
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function goInstr(){
+  var n = el('pid').value.trim();
+  if(!n){ el('pid').focus(); return; }
+  pid = n;
+  hideAll(); show('si');
+}
+
+function startTask(){
+  hideAll();
+  blockIdx = 0; roundIdx = 0;
+  blockTrials = []; roundTrials = []; allResults = [];
+  showBlockInfo();
+}
+
+function showBlockInfo(){
+  var b = BLOCKS[blockIdx];
+  el('infoBadge').textContent = 'Round '+(blockIdx+1)+' of '+BLOCKS.length;
+  el('infoTitle').textContent = 'Up next: '+b.label;
+  el('infoDesc').innerHTML = b.desc;
+  el('infoSpecs').innerHTML = b.specs.map(function(s){
+    return '<span class="spec-chip">'+s+'</span>';
+  }).join('');
+  var trialWord = b.multi ? 'grids' : (b.rounds===1?'trial':'trials');
+  el('infoRounds').textContent = 'You will complete '+b.rounds+' '+trialWord+'. Take your time before pressing ready.';
+  hideAll(); show('sinfo');
+}
+
+function launchRound(){
+  roundTrials = [];
+  gridsThisRound = 0;
+  hideAll();
+  startGrid();
+}
+
+function startGrid(){
+  var b = BLOCKS[blockIdx];
+  matrix = genMatrix(b.rows, b.cols);
+  correct = countZ(matrix);
+  renderGrid(matrix, b.rows, b.cols);
+  el('ans').value = '';
+  el('btnSubmit').disabled = false;
+  hide('feedback');
+  el('ans').focus();
+
+  // labels
+  el('progFill').style.width = (totalProgress()*100)+'%';
+  if(b.multi){
+    el('blockLabel').textContent = 'Round '+(blockIdx+1)+' · Grid '+(gridsThisRound+1);
+    el('roundPip').textContent = 'Trial '+(roundIdx+1)+' of '+b.rounds;
+  } else {
+    el('blockLabel').textContent = 'Round '+(blockIdx+1)+' · Trial '+(roundIdx+1)+' of '+b.rounds;
+    el('roundPip').textContent = '';
+  }
+
+  t0 = Date.now();
+  clearInterval(tmr);
+  var deadline = Date.now() + b.secs*1000;
+  tick(deadline, b.secs);
+  tmr = setInterval(function(){ tick(deadline, b.secs); }, 100);
+
+  show('st');
+}
+
+function tick(deadline, totalSecs){
+  var left = Math.max(0,(deadline-Date.now())/1000);
+  var pct = left/totalSecs*100;
+  el('timerFill').style.width = pct+'%';
+  el('timerFill').style.background = left<=5?'#f87171':left<=10?'#f59e0b':'#6366f1';
+  el('timerNum').textContent = Math.ceil(left);
+  el('timerNum').className = 'timer-num'+(left<=5?' danger':left<=10?' warn':'');
+  if(left<=0){
+    clearInterval(tmr);
+    el('btnSubmit').disabled = true;
+    var b = BLOCKS[blockIdx];
+    if(b.multi){
+      // Time ran out during multi-grid — record as timeout only if no answer pending
+      // (user may have just submitted, grid already replaced)
+      // Show between-round
+      showBetweenRound();
+    } else {
+      // Single grid timeout
+      recordTrial(null);
+      showBetweenRound();
+    }
+  }
+}
+
+function submitAns(){
+  var v = el('ans').value;
+  if(v===''||isNaN(parseInt(v))) return;
+  var sub = parseInt(v);
+  var elapsed = (Date.now()-t0)/1000;
+  var err = sub-correct;
+  var cat = catFromErr(err);
+  var b = BLOCKS[blockIdx];
+
+  el('btnSubmit').disabled = true;
+  recordTrial({sub:sub, err:err, cat:cat, elapsed:elapsed});
+  flashFeedback(cat, err);
+
+  if(b.multi){
+    // Timer keeps running — just load next grid after brief feedback flash
+    gridsThisRound++;
+    setTimeout(function(){
+      hide('feedback');
+      matrix = genMatrix(b.rows, b.cols);
+      correct = countZ(matrix);
+      renderGrid(matrix, b.rows, b.cols);
+      el('ans').value = '';
+      el('btnSubmit').disabled = false;
+      el('blockLabel').textContent = 'Round '+(blockIdx+1)+' · Grid '+(gridsThisRound+1);
+      el('roundPip').textContent = 'Trial '+(roundIdx+1)+' of '+b.rounds;
+      t0 = Date.now();
+      el('ans').focus();
+    }, 700);
+  } else {
+    // Single grid: stop timer, show between-round
+    clearInterval(tmr);
+    setTimeout(function(){ endRound(); }, 800);
+  }
+}
+
+function endRound(){
+  gridsThisRound++;
+  showBetweenRound();
+}
+
+function recordTrial(data){
+  var entry = {
+    correct: correct,
+    sub:     data ? data.sub     : null,
+    err:     data ? data.err     : null,
+    cat:     data ? data.cat     : 'timeout',
+    elapsed: data ? data.elapsed : null
+  };
+  roundTrials.push(entry);
+  blockTrials.push(entry);
+}
+
+function flashFeedback(cat, err){
+  var fb = el('feedback');
+  fb.className = 'feedback';
+  if(cat==='exact')      { fb.className+=' fb-exact';   fb.textContent='✓ Spot on!'; }
+  else if(cat==='borderline'){ fb.className+=' fb-border'; fb.textContent='≈ Very close — off by '+(err>0?'+':'')+err; }
+  else if(cat==='wrong') { fb.className+=' fb-wrong';   fb.textContent='✗ Not quite — off by '+(err>0?'+':'')+err+'. The answer was '+correct+'.'; }
+  else                   { fb.className+=' fb-timeout'; fb.textContent='⏱ Time\'s up. The answer was '+correct+'.'; }
+  show('feedback');
+}
+
+function showBetweenRound(){
+  var b = BLOCKS[blockIdx];
+  var isLastRound = (roundIdx === b.rounds-1);
+
+  el('brtitle').textContent = 'Trial '+(roundIdx+1)+' done';
+  el('brchips').innerHTML = makeChips(roundTrials);
+  el('brstats').innerHTML = makeStats(roundTrials);
+
+  if(isLastRound){
+    el('brnext').textContent = 'That was the last trial of this section. Click to see your section summary.';
+    el('btnBRNext').textContent = 'Section summary →';
+  } else {
+    el('brnext').textContent = 'Good work. When you\'re ready, click to start trial '+(roundIdx+2)+'.';
+    el('btnBRNext').textContent = 'Next trial →';
+  }
+  hideAll(); show('sbr');
+}
+
+function nextRound(){
+  roundIdx++;
+  var b = BLOCKS[blockIdx];
+  if(roundIdx >= b.rounds){
+    // Block finished
+    finishBlock();
+  } else {
+    // Next round within same block
+    roundTrials = [];
+    gridsThisRound = 0;
+    launchRound();
+  }
+}
+
+function finishBlock(){
+  var b = BLOCKS[blockIdx];
+  var summary = summariseBlock(b, blockTrials);
+  allResults.push(summary);
+
+  // Block summary screen
+  var isLast = (blockIdx === BLOCKS.length-1);
+  el('blTitle').textContent = 'Section '+(blockIdx+1)+' complete — '+b.label;
+  el('blChips').innerHTML = makeChips(blockTrials);
+  el('blStats').innerHTML = makeStats(blockTrials);
+
+  if(isLast){
+    el('blNext').innerHTML = '<p style="font-size:.85rem;color:#9ca3af">That was the final section. Click below to see your full summary.</p>';
+    el('btnBlNext').textContent = 'See my results →';
+  } else {
+    var nb = BLOCKS[blockIdx+1];
+    el('blNext').innerHTML = '<p style="font-size:.85rem;color:#9ca3af">Next up: <strong style="color:#e8e4d9">'+nb.label+'</strong>. Click when you\'re ready to see what it involves.</p>';
+    el('btnBlNext').textContent = 'Next section →';
+  }
+  hideAll(); show('sbl');
+}
+
+function nextBlock(){
+  blockIdx++;
+  roundIdx = 0;
+  blockTrials = []; roundTrials = []; gridsThisRound = 0;
+  if(blockIdx >= BLOCKS.length){
+    showFinal();
+  } else {
+    showBlockInfo();
+  }
+}
+
+function summariseBlock(b, trials){
+  var ne = trials.filter(function(t){return t.cat==='exact';}).length;
+  var nb = trials.filter(function(t){return t.cat==='borderline';}).length;
+  var nw = trials.filter(function(t){return t.cat==='wrong';}).length;
+  var nt = trials.filter(function(t){return t.cat==='timeout';}).length;
+  var times = trials.filter(function(t){return t.elapsed!==null;}).map(function(t){return t.elapsed;});
+  var avg = times.length ? (times.reduce(function(a,x){return a+x;},0)/times.length).toFixed(1) : null;
+  return {
+    blockId:b.id, rows:b.rows, cols:b.cols, secs:b.secs, rounds:b.rounds,
+    label:b.label, n:trials.length,
+    exact:ne, border:nb, wrong:nw, timeout:nt,
+    avgTime: avg, trials:trials
+  };
+}
+
+// ═══════════════════════════════════════
+// FINAL
+// ═══════════════════════════════════════
+function showFinal(){
+  el('progFill').style.width = '100%';
+  var tbody = el('finalBody');
+  tbody.innerHTML = '';
+  allResults.forEach(function(s,i){
+    var pct = function(n){ return s.n ? Math.round(n/s.n*100)+'%' : '—'; };
+    tbody.innerHTML += '<tr>' +
+      '<td>'+(i+1)+' ('+s.blockId+')</td>' +
+      '<td>'+s.rows+'×'+s.cols+'</td>' +
+      '<td>'+s.secs+'s</td>' +
+      '<td>'+s.n+'</td>' +
+      '<td style="color:#4ade80">'+s.exact+' ('+pct(s.exact)+')</td>' +
+      '<td style="color:#f59e0b">'+s.border+' ('+pct(s.border)+')</td>' +
+      '<td style="color:#f87171">'+s.wrong+' ('+pct(s.wrong)+')</td>' +
+      '<td style="color:#94a3b8">'+s.timeout+'</td>' +
+      '<td>'+(s.avgTime ? s.avgTime+'s' : '—')+'</td>' +
+      '</tr>';
+  });
+  hideAll(); show('sf');
+}
+
+// ═══════════════════════════════════════
+// DATA EXPORT
+// ═══════════════════════════════════════
+function buildRows(){
+  var headers = ['participant_id','block','block_id','grid_rows','grid_cols',
+                 'time_limit_s','trial_num','submitted','correct_zeros',
+                 'error','category','response_time_s'];
+  var rows = [];
+  allResults.forEach(function(s){
+    s.trials.forEach(function(t,ti){
+      rows.push([
+        pid, allResults.indexOf(s)+1, s.blockId, s.rows, s.cols, s.secs,
+        ti+1,
+        t.sub!==null?t.sub:'',
+        t.correct,
+        t.err!==null?t.err:'',
+        t.cat,
+        t.elapsed!==null?t.elapsed.toFixed(2):''
+      ]);
+    });
+  });
+  return {headers:headers, rows:rows};
+}
+
+function downloadCSV(){
+  var d = buildRows();
+  var csv = d.headers.join(',')+'\n'+d.rows.map(function(r){return r.join(',');}).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'ref_pilot_'+pid.replace(/[^a-z0-9]/gi,'_')+'_'+Date.now()+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function saveData(){
+  var d = buildRows();
+  var payload = {
+    headers: d.headers, rows: d.rows,
+    meta: {pid:pid, ts:new Date().toISOString(), version:'REF_pilot_v2'}
+  };
+  var btn = el('btnSave');
+  var msg = el('saveMsg');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  msg.style.display = 'block';
+  msg.style.color = '#94a3b8';
+  msg.textContent = 'Sending your results…';
+
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  }).then(function(){
+    btn.textContent = '✓ Sent';
+    btn.style.cssText = 'background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)';
+    msg.style.color = '#4ade80';
+    msg.textContent = '✓ Your results have been saved. Thank you so much for taking part!';
+  }).catch(function(){
+    btn.disabled = false;
+    btn.textContent = '📊 Try again';
+    msg.style.color = '#f87171';
+    msg.textContent = '⚠ Something went wrong. Please use the Save as file button below.';
+  });
+}
+</script>
+</body>
+</html>
