@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#171210">
+<title>Learn in Yozgat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=Sen:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#171210;        /* smoky room */
+    --night-2:#211a14;      /* panels */
+    --night-3:#2b2118;      /* raised */
+    --line:#3a2c1f;         /* hairline */
+    --cay:#F2B950;          /* tea amber */
+    --cay-deep:#E8971F;     /* strong tea */
+    --parchment:#EAD9B0;    /* text warm */
+    --muted:#9c876a;        /* muted warm */
+    --ember:#E5533C;        /* cigarette ember (wrong) */
+    --ember-glow:rgba(229,83,60,.55);
+    --mint:#7FC79A;         /* correct */
+    --mint-glow:rgba(127,199,154,.45);
+    --smoke:rgba(234,217,176,.10);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #241b12 0%, var(--night) 60%),
+      var(--night);
+    color:var(--parchment);
+    font-family:'Sen',system-ui,-apple-system,sans-serif;
+    overflow:hidden;
+    position:fixed;inset:0;
+    -webkit-user-select:none;user-select:none;
+  }
+  .screen{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    opacity:0;pointer-events:none;transition:opacity .35s ease;
+  }
+  .screen.on{opacity:1;pointer-events:auto}
+
+  /* ---------- HOME ---------- */
+  #home{justify-content:space-between;align-items:center;text-align:center;padding-bottom:calc(env(safe-area-inset-bottom) + 18px)}
+  .brand{padding-top:calc(env(safe-area-inset-top) + 20px)}
+  .eyebrow{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--cay-deep);font-weight:700}
+  .title{
+    font-family:'Fraunces',serif;font-weight:900;line-height:.92;
+    font-size:clamp(40px,15vw,66px);margin-top:6px;color:var(--parchment);
+    text-shadow:0 2px 0 #0b0805;
+  }
+  .title em{font-style:italic;color:var(--cay)}
+  .art-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:0;padding:6px 12px}
+  .art-wrap svg{width:min(340px,82vw);height:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55))}
+  .home-foot{width:100%;max-width:420px;padding:0 22px}
+  .how{color:var(--muted);font-size:13.5px;line-height:1.5;margin-bottom:16px}
+  .how b{color:var(--parchment);font-weight:700}
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;
+    background:linear-gradient(180deg,var(--cay) 0%,var(--cay-deep) 100%);
+    color:#2a1c08;font-family:'Sen';font-weight:800;font-size:19px;letter-spacing:.02em;
+    padding:17px;border-radius:16px;
+    box-shadow:0 10px 0 #7a4e08, 0 16px 30px rgba(0,0,0,.4);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active{transform:translateY(6px);box-shadow:0 4px 0 #7a4e08,0 8px 16px rgba(0,0,0,.4)}
+  .btn.ghost{background:transparent;color:var(--parchment);border:1.5px solid var(--line);box-shadow:none;font-weight:700;font-size:16px;padding:13px}
+  .btn.ghost:active{transform:translateY(2px);background:var(--night-2)}
+
+  /* ---------- HUD ---------- */
+  #game{padding-top:calc(env(safe-area-inset-top) + 8px)}
+  .hud{
+    display:flex;align-items:center;gap:10px;padding:8px 14px 10px;
+  }
+  .prog{flex:1;min-width:0}
+  .prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .prog-top .label{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .prog-top .count{font-family:'Fraunces';font-weight:900;font-size:16px;color:var(--cay)}
+  .prog-top .count b{color:var(--parchment)}
+  .bar{height:8px;border-radius:99px;background:var(--night-3);overflow:hidden;border:1px solid var(--line)}
+  .bar > i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--cay-deep),var(--cay));transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .cig{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    min-width:64px;
+  }
+  .cig-body{display:flex;align-items:center;height:16px}
+  .cig-stick{
+    width:52px;height:11px;border-radius:2px;position:relative;
+    background:linear-gradient(180deg,#f6efdd,#d8caa8);
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.12);
+    transition:width .3s ease;
+  }
+  .cig-stick::before{content:"";position:absolute;right:-1px;top:0;bottom:0;width:12px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#e8a24a,#c47a1e)}
+  .cig-ember{width:11px;height:11px;border-radius:50%;background:var(--ember);box-shadow:0 0 8px 2px var(--ember-glow);margin-left:-2px}
+  .cig-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+  /* ---------- BOARD ---------- */
+  .board{
+    flex:1;display:flex;gap:8px;padding:4px 10px 10px;min-height:0;position:relative;
+  }
+  .col-side{
+    flex:1;display:flex;flex-direction:column;min-width:0;
+    background:linear-gradient(180deg,var(--night-2),rgba(33,26,20,.4));
+    border:1px solid var(--line);border-radius:16px;padding:8px 8px 10px;
+    position:relative;overflow:hidden;
+  }
+  .col-side::before{
+    content:attr(data-head);position:absolute;top:0;left:0;right:0;
+    text-align:center;font-size:10px;letter-spacing:.28em;font-weight:800;
+    text-transform:uppercase;color:var(--muted);padding:6px 0 4px;
+    background:linear-gradient(180deg,var(--night-2),transparent);z-index:3;pointer-events:none;
+  }
+  .grid{
+    flex:1;display:grid;grid-template-columns:repeat(3,1fr);
+    grid-auto-rows:1fr;gap:6px;margin-top:20px;min-height:0;
+  }
+  .tile{
+    position:relative;border:1.5px solid var(--line);border-radius:12px;
+    background:linear-gradient(180deg,var(--night-3),#231a12);
+    color:var(--parchment);font-family:'Sen';font-weight:700;
+    font-size:13px;line-height:1.08;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:4px 3px;cursor:pointer;overflow:hidden;overflow-wrap:anywhere;hyphens:auto;
+    box-shadow:0 3px 0 rgba(0,0,0,.35);
+    animation:drop .42s cubic-bezier(.3,1.5,.5,1) both;
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .tile.en{color:#fff}
+  .tile.tr{color:var(--cay)}
+  @keyframes drop{
+    0%{transform:translateY(-130%) rotate(-4deg);opacity:0}
+    70%{opacity:1}
+    100%{transform:translateY(0) rotate(0);opacity:1}
+  }
+  .tile.sel{border-color:var(--cay);background:linear-gradient(180deg,#4a3413,#38270f);transform:translateY(-2px) scale(1.03);box-shadow:0 6px 14px rgba(242,185,80,.25),0 0 0 2px rgba(242,185,80,.35)}
+  .tile.hit{border-color:var(--mint);animation:hit .45s ease forwards;pointer-events:none}
+  @keyframes hit{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.14);background:var(--mint);color:#0e2417;box-shadow:0 0 22px 4px var(--mint-glow)}
+    100%{transform:scale(.2) translateY(-8px);opacity:0}
+  }
+  .tile.miss{animation:miss .4s ease}
+  @keyframes miss{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-7px);border-color:var(--ember)}
+    40%{transform:translateX(7px)}
+    60%{transform:translateX(-5px);border-color:var(--ember);box-shadow:0 0 16px 2px var(--ember-glow)}
+    80%{transform:translateX(5px)}
+  }
+
+  /* ---------- TOAST ---------- */
+  .toast-layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:20;padding:24px}
+  .toast{
+    max-width:340px;text-align:center;padding:20px 24px;border-radius:20px;
+    font-family:'Fraunces';font-weight:600;font-size:22px;line-height:1.22;
+    background:linear-gradient(180deg,var(--night-3),#1c150e);
+    border:1.5px solid var(--line);color:var(--parchment);
+    box-shadow:0 24px 60px rgba(0,0,0,.6);
+    opacity:0;transform:scale(.82) translateY(10px);
+  }
+  .toast.show{animation:toastPop 1.9s ease forwards}
+  .toast.good{border-color:rgba(127,199,154,.5)}
+  .toast.good .emo{color:var(--mint)}
+  .toast.warn{border-color:rgba(229,83,60,.5)}
+  .toast .emo{display:block;font-size:34px;margin-bottom:8px;color:var(--cay)}
+  @keyframes toastPop{
+    0%{opacity:0;transform:scale(.82) translateY(10px)}
+    12%{opacity:1;transform:scale(1) translateY(0)}
+    82%{opacity:1;transform:scale(1) translateY(0)}
+    100%{opacity:0;transform:scale(.96) translateY(-6px)}
+  }
+
+  /* ---------- WIN ---------- */
+  #win{justify-content:center;align-items:center;text-align:center;padding:30px}
+  #win .big{font-family:'Fraunces';font-weight:900;font-size:clamp(34px,11vw,52px);color:var(--cay);line-height:1}
+  #win p{color:var(--muted);font-size:15px;margin:14px 0 26px;line-height:1.5;max-width:320px}
+  #win .stat{display:flex;gap:22px;margin-bottom:26px}
+  #win .stat div{font-family:'Fraunces';font-weight:900;font-size:30px;color:var(--parchment)}
+  #win .stat span{display:block;font-family:'Sen';font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  #win .btn{max-width:300px}
+</style>
+</head>
+<body>
+
+<!-- ===================== HOME ===================== -->
+<section id="home" class="screen on">
+  <div class="brand">
+    <div class="eyebrow">Kan Gazı Odası · Çay & Sigara</div>
+    <h1 class="title">Learn in <em>Yozgat</em></h1>
+  </div>
+
+  <div class="art-wrap" aria-label="Başörtülü, hastane önlüklü bir kadın Kan Gazı odasında çay ve sigara içiyor">
+    <!-- Stylised scene: nurse-gowned, headscarf woman with tea & cigarette in the KAN GAZI room -->
+    <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg" role="img">
+      <defs>
+        <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2c2117"/><stop offset="1" stop-color="#1c140d"/>
+        </linearGradient>
+        <linearGradient id="gown" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#dfe7ec"/><stop offset="1" stop-color="#b9c4cc"/>
+        </linearGradient>
+        <linearGradient id="scarf" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#c2543f"/><stop offset="1" stop-color="#9a3b2c"/>
+        </linearGradient>
+        <linearGradient id="tea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f3b64f"/><stop offset="1" stop-color="#c4761a"/>
+        </linearGradient>
+        <radialGradient id="lamp" cx="50%" cy="14%" r="70%">
+          <stop offset="0" stop-color="rgba(242,185,80,.22)"/><stop offset="1" stop-color="rgba(242,185,80,0)"/>
+        </radialGradient>
+      </defs>
+
+      <!-- room -->
+      <rect x="0" y="0" width="340" height="300" fill="url(#wall)"/>
+      <rect x="0" y="0" width="340" height="300" fill="url(#lamp)"/>
+      <rect x="0" y="238" width="340" height="62" fill="#15100a"/>
+      <line x1="0" y1="238" x2="340" y2="238" stroke="#3a2c1f" stroke-width="2"/>
+
+      <!-- door with KAN GAZI sign -->
+      <rect x="18" y="52" width="86" height="186" rx="4" fill="#241a11" stroke="#3a2c1f" stroke-width="2"/>
+      <rect x="30" y="70" width="62" height="30" rx="4" fill="#0f0b07" stroke="var(--cay-deep)" stroke-width="1.5"/>
+      <text x="61" y="82" text-anchor="middle" fill="#F2B950" font-family="Sen,sans-serif" font-weight="800" font-size="10">KAN</text>
+      <text x="61" y="94" text-anchor="middle" fill="#F2B950" font-family="Sen,sans-serif" font-weight="800" font-size="10">GAZI</text>
+      <circle cx="95" cy="150" r="3.4" fill="#caa25a"/>
+
+      <!-- steam from tea -->
+      <path d="M232 150 q7 -12 -2 -22 q-8 -9 1 -20" fill="none" stroke="rgba(234,217,176,.5)" stroke-width="3" stroke-linecap="round">
+        <animate attributeName="opacity" values="0;.7;0" dur="3.4s" repeatCount="indefinite"/>
+      </path>
+      <!-- cigarette smoke -->
+      <path d="M150 118 q10 -16 -2 -30 q-10 -12 2 -26" fill="none" stroke="rgba(234,217,176,.35)" stroke-width="3.5" stroke-linecap="round">
+        <animate attributeName="opacity" values="0;.6;0" dur="4s" repeatCount="indefinite"/>
+      </path>
+
+      <!-- ===== figure ===== -->
+      <!-- body / hospital gown -->
+      <path d="M112 300 q-2 -78 18 -104 q14 -18 40 -18 q26 0 40 18 q20 26 18 104 Z" fill="url(#gown)"/>
+      <path d="M170 178 v122" stroke="#9aa6ae" stroke-width="2" opacity=".7"/>
+      <!-- gown neckline + tie -->
+      <path d="M150 182 q20 16 40 0" fill="none" stroke="#9aa6ae" stroke-width="2.5"/>
+      <circle cx="170" cy="196" r="2.4" fill="#9aa6ae"/>
+      <!-- neck -->
+      <rect x="161" y="150" width="18" height="24" rx="7" fill="#f0d3b8"/>
+      <!-- head (fair skin) -->
+      <circle cx="170" cy="126" r="30" fill="#f4d9bf"/>
+      <!-- headscarf -->
+      <path d="M140 126 a30 30 0 0 1 60 0 q2 -34 -30 -36 q-32 2 -30 36 Z" fill="url(#scarf)"/>
+      <path d="M141 128 q-14 4 -18 26 q16 -6 22 -10 Z" fill="#8f3527"/>
+      <path d="M199 128 q14 4 18 26 q-16 -6 -22 -10 Z" fill="#a8442f"/>
+      <!-- face -->
+      <ellipse cx="159" cy="126" rx="2.6" ry="3.4" fill="#3a2114"/>
+      <ellipse cx="181" cy="126" rx="2.6" ry="3.4" fill="#3a2114"/>
+      <path d="M154 118 q5 -3 10 0" fill="none" stroke="#7a4a2a" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M176 118 q5 -3 10 0" fill="none" stroke="#7a4a2a" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M162 140 q8 5 16 0" fill="none" stroke="#a55b3a" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="151" cy="136" rx="4" ry="3" fill="#e8a08a" opacity=".55"/>
+      <ellipse cx="189" cy="136" rx="4" ry="3" fill="#e8a08a" opacity=".55"/>
+
+      <!-- cigarette in hand (left) -->
+      <path d="M135 176 q-14 -18 4 -40" fill="none" stroke="url(#gown)" stroke-width="15" stroke-linecap="round"/>
+      <g transform="rotate(-24 150 132)">
+        <rect x="140" y="130" width="26" height="5" rx="2" fill="#f6efdd"/>
+        <rect x="140" y="130" width="7" height="5" rx="2" fill="#e0a24a"/>
+        <circle cx="167" cy="132.5" r="2.6" fill="#E5533C"/>
+      </g>
+
+      <!-- tea glass (ince belli) on the right hand -->
+      <path d="M205 176 q16 -12 4 -34" fill="none" stroke="url(#gown)" stroke-width="15" stroke-linecap="round"/>
+      <g transform="translate(214 132)">
+        <path d="M0 4 q10 -3 20 0 l-3 30 q-7 3 -14 0 Z" fill="url(#tea)" stroke="#eadfc8" stroke-width="1.5"/>
+        <ellipse cx="10" cy="5" rx="10" ry="3" fill="#f7d68a"/>
+        <path d="M20 12 q9 4 -1 16" fill="none" stroke="#d8caa8" stroke-width="1.6"/>
+        <!-- saucer -->
+        <ellipse cx="10" cy="40" rx="17" ry="4" fill="#d8caa8"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="home-foot">
+    <p class="how"><b>İngilizce</b> kelimeyi seç, sağdaki <b>Türkçe</b> karşılığıyla eşleştir. Kelimeler yukarıdan düşer, sen 100 doğruya ulaş. Yanıldıkça… laflar başlar.</p>
+    <button class="btn" id="startBtn">Nöbete Başla</button>
+  </div>
+</section>
+
+<!-- ===================== GAME ===================== -->
+<section id="game" class="screen">
+  <div class="hud">
+    <div class="prog">
+      <div class="prog-top">
+        <span class="label">Doğru Eşleşme</span>
+        <span class="count"><b id="scoreNow">0</b> / 100</span>
+      </div>
+      <div class="bar"><i id="barFill"></i></div>
+    </div>
+    <div class="cig" title="Bu turdaki hata">
+      <div class="cig-body">
+        <span class="cig-stick" id="cigStick"></span>
+        <span class="cig-ember"></span>
+      </div>
+      <span class="cig-label">Tur Hata: <span id="wrongNow">0</span></span>
+    </div>
+  </div>
+
+  <div class="board">
+    <div class="col-side" data-head="English">
+      <div class="grid" id="gridEN"></div>
+    </div>
+    <div class="col-side" data-head="Türkçe">
+      <div class="grid" id="gridTR"></div>
+    </div>
+    <div class="toast-layer"><div class="toast" id="toast"></div></div>
+  </div>
+</section>
+
+<!-- ===================== WIN ===================== -->
+<section id="win" class="screen">
+  <div class="big">Nöbet Bitti 🚬☕</div>
+  <p id="winMsg">100 kelime, tek çayla. Maya sizinle gurur duyuyor.</p>
+  <div class="stat">
+    <div>100<span>Doğru</span></div>
+    <div id="winWrong">0<span>Toplam Hata</span></div>
+    <div id="winBreaks">0<span>Sigara Molası</span></div>
+  </div>
+  <button class="btn" id="againBtn">Bir Tur Daha</button>
+</section>
+
+<script>
+/* ============ KELİME HAVUZU (B1+ · güvenilir çeviriler) ============ */
+const WORDS = [
+["ability","yetenek"],["abroad","yurt dışı"],["accept","kabul etmek"],["accident","kaza"],["achieve","başarmak"],
+["admit","itiraf etmek"],["advantage","avantaj"],["advice","tavsiye"],["afford","gücü yetmek"],["afraid","korkmuş"],
+["agree","katılmak"],["allow","izin vermek"],["amazing","şaşırtıcı"],["ancient","antik"],["announce","duyurmak"],
+["annoy","sinirlendirmek"],["anxious","endişeli"],["apologise","özür dilemek"],["appear","görünmek"],["appreciate","takdir etmek"],
+["approach","yaklaşmak"],["argue","tartışmak"],["arrange","düzenlemek"],["arrest","tutuklamak"],["attach","eklemek"],
+["attempt","girişim"],["attend","katılmak"],["attitude","tutum"],["attract","cezbetmek"],["available","mevcut"],
+["avoid","kaçınmak"],["aware","farkında"],["balance","denge"],["bargain","pazarlık"],["behave","davranmak"],
+["belong","ait olmak"],["benefit","fayda"],["blame","suçlamak"],["borrow","ödünç almak"],["brave","cesur"],
+["breathe","nefes almak"],["brief","kısa"],["broad","geniş"],["calm","sakin"],["careful","dikkatli"],
+["celebrate","kutlamak"],["challenge","meydan okuma"],["charge","ücret"],["cheerful","neşeli"],["claim","iddia etmek"],
+["clarify","netleştirmek"],["clever","akıllı"],["collapse","çökmek"],["comfort","rahatlık"],["commit","adamak"],
+["compare","karşılaştırmak"],["compete","yarışmak"],["complain","şikayet etmek"],["complete","tamamlamak"],["concern","endişe"],
+["confident","kendine güvenen"],["confuse","kafa karıştırmak"],["connect","bağlamak"],["consider","göz önünde bulundurmak"],["consist","oluşmak"],
+["contain","içermek"],["continue","devam etmek"],["contribute","katkıda bulunmak"],["convince","ikna etmek"],["cope","başa çıkmak"],
+["courage","cesaret"],["crash","çarpışmak"],["create","yaratmak"],["crowd","kalabalık"],["cruel","zalim"],
+["curious","meraklı"],["damage","hasar"],["deal","anlaşma"],["decade","on yıl"],["decrease","azalmak"],
+["delay","gecikme"],["deliver","teslim etmek"],["demand","talep"],["deny","reddetmek"],["depend","bağlı olmak"],
+["describe","tanımlamak"],["deserve","hak etmek"],["destroy","yok etmek"],["develop","geliştirmek"],["disappear","kaybolmak"],
+["discover","keşfetmek"],["discuss","müzakere etmek"],["distance","mesafe"],["disturb","rahatsız etmek"],["divide","bölmek"],
+["doubt","şüphe"],["earn","kazanmak"],["effort","çaba"],["embarrass","utandırmak"],["emergency","acil durum"],
+["employ","işe almak"],["encourage","teşvik etmek"],["enemy","düşman"],["enormous","devasa"],["ensure","sağlamak"],
+["entire","bütün"],["environment","çevre"],["escape","kaçmak"],["establish","kurmak"],["estimate","tahmin etmek"],
+["examine","incelemek"],["exist","var olmak"],["expand","genişlemek"],["expect","beklemek"],["experience","deneyim"],
+["explain","açıklamak"],["explore","keşfetmek"],["express","ifade etmek"],["extreme","aşırı"],["familiar","tanıdık"],
+["famous","ünlü"],["fault","kusur"],["favour","iyilik"],["fear","korku"],["flexible","esnek"],
+["focus","odaklanmak"],["forbid","yasaklamak"],["forgive","affetmek"],["formal","resmi"],["fortune","servet"],
+["frequent","sık"],["frighten","korkutmak"],["gain","kazanç"],["generous","cömert"],["gentle","nazik"],
+["goal","hedef"],["guarantee","garanti"],["guilty","suçlu"],["habit","alışkanlık"],["handle","idare etmek"],
+["harm","zarar"],["hesitate","tereddüt etmek"],["hire","kiralamak"],["honest","dürüst"],["huge","kocaman"],
+["ignore","görmezden gelmek"],["imagine","hayal etmek"],["immediate","anında"],["improve","geliştirmek"],["include","içermek"],
+["income","gelir"],["increase","artmak"],["independent","bağımsız"],["influence","etki"],["injure","yaralamak"],
+["innocent","masum"],["insist","ısrar etmek"],["inspire","ilham vermek"],["instead","yerine"],["intend","niyet etmek"],
+["introduce","tanıtmak"],["invent","icat etmek"],["involve","dahil etmek"],["journey","yolculuk"],["judge","yargılamak"],
+["knowledge","bilgi"],["lack","eksiklik"],["lazy","tembel"],["lend","ödünç vermek"],["limit","sınır"],
+["lonely","yalnız"],["maintain","sürdürmek"],["manage","yönetmek"],["mention","bahsetmek"],["mixture","karışım"],
+["nervous","gergin"],["obtain","elde etmek"],["obvious","apaçık"],["occur","meydana gelmek"],["offer","teklif etmek"],
+["opinion","görüş"],["opportunity","fırsat"],["oppose","karşı çıkmak"],["patient","sabırlı"],["perform","gerçekleştirmek"],
+["permit","izin vermek"],["persuade","ikna etmek"],["pleasant","hoş"],["polite","kibar"],["possess","sahip olmak"],
+["poverty","yoksulluk"],["praise","övmek"],["prefer","tercih etmek"],["prepare","hazırlamak"],["prevent","önlemek"],
+["previous","önceki"],["produce","üretmek"],["progress","ilerleme"],["promise","söz vermek"],["protect","korumak"],
+["provide","sağlamak"],["purpose","amaç"],["quality","kalite"],["quantity","miktar"],["reach","ulaşmak"],
+["realise","fark etmek"],["reason","sebep"],["recognise","tanımak"],["recommend","tavsiye etmek"],["reduce","azaltmak"],
+["refuse","reddetmek"],["regret","pişman olmak"],["relax","rahatlamak"],["reliable","güvenilir"],["remain","kalmak"],
+["remind","hatırlatmak"],["remove","kaldırmak"],["repair","tamir etmek"],["replace","değiştirmek"],["reply","cevaplamak"],
+["require","gerektirmek"],["rescue","kurtarmak"],["research","araştırma"],["resemble","benzemek"],["respect","saygı"],
+["responsible","sorumlu"],["reveal","açığa çıkarmak"],["reward","ödül"],["rough","pürüzlü"],["satisfy","tatmin etmek"],
+["scared","korkmuş"],["search","aramak"],["seldom","nadiren"],["sensible","mantıklı"],["separate","ayırmak"],
+["serious","ciddi"],["several","birkaç"],["shallow","sığ"],["shame","utanç"],["share","paylaşmak"],
+["shy","utangaç"],["silent","sessiz"],["similar","benzer"],["sincere","samimi"],["skill","beceri"],
+["society","toplum"],["solve","çözmek"],["spread","yaymak"],["steady","sabit"],["strange","garip"],
+["strength","güç"],["stress","stres"],["strict","katı"],["struggle","mücadele etmek"],["succeed","başarmak"],
+["suffer","acı çekmek"],["suggest","önermek"],["support","desteklemek"],["suppose","varsaymak"],["surface","yüzey"],
+["surround","çevrelemek"],["survive","hayatta kalmak"],["suspect","şüphelenmek"],["swallow","yutmak"],["tend","eğiliminde olmak"],
+["threaten","tehdit etmek"],["tidy","düzenli"],["tiny","minik"],["tough","zorlu"],["translate","çevirmek"],
+["treat","davranmak"],["trust","güvenmek"],["understand","anlamak"],["unique","eşsiz"],["urge","dürtü"],
+["useful","yararlı"],["valuable","değerli"],["vanish","yok olmak"],["various","çeşitli"],["victory","zafer"],
+["volunteer","gönüllü"],["wander","dolaşmak"],["warn","uyarmak"],["waste","israf etmek"],["weak","zayıf"],
+["wealth","varlık"],["weird","tuhaf"],["wisdom","bilgelik"],["worth","değer"],["wound","yara"],
+["gather","toplamak"],["glance","göz atmak"],["grateful","minnettar"],["greedy","açgözlü"],["hide","saklamak"],
+["imply","ima etmek"],["impress","etkilemek"],["indicate","belirtmek"],["intention","niyet"],["measure","ölçmek"]
+];
+
+/* ============ AYARLAR ============ */
+const TARGET = 100;        // kazanmak için doğru sayısı
+const PAIRS_ON_BOARD = 6;  // aynı anda ekranda: 3 sütun x 2 satır (mobil için okunur)
+const ROUND = 10;          // "tur" = 10 doğru
+
+const MISS_MSG = {
+  1:{t:"Tebrikler, 1 sigara molası", e:"🚬", cls:"good"},
+  2:{t:"Ahmet bile senden iyi", e:"🙄", cls:"warn"},
+  3:{t:"Maya sizi anlamayabilir", e:"😐", cls:"warn"},
+  4:{t:"Reading'in yüz karası", e:"😤", cls:"warn"},
+  5:{t:"Bu oyun için yeterince okuma yazmanız olduğundan emin misin?", e:"📚", cls:"warn"},
+  6:{t:"Sigara içmeyi haketmedin.", e:"🚭", cls:"warn"}
+};
+
+/* ============ DURUM ============ */
+let pool, active, enSeq, trSeq, score, roundWrong, totalWrong, breaks, selected, busy;
+
+const $=(id)=>document.getElementById(id);
+const gridEN=$("gridEN"), gridTR=$("gridTR"), toast=$("toast");
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function newGame(){
+  pool=shuffle(WORDS.map((w,i)=>({en:w[0],tr:w[1],key:i})));
+  active=[]; enSeq=[]; trSeq=[];
+  score=0; roundWrong=0; totalWrong=0; breaks=0; selected=null; busy=false;
+  gridEN.innerHTML=""; gridTR.innerHTML="";
+  for(let i=0;i<PAIRS_ON_BOARD;i++) spawn();
+  updateHUD();
+}
+
+function spawn(){
+  if(!pool.length) return;
+  const p=pool.pop();
+  active.push(p);
+  // rasgele konuma düşür (Tetris hissi)
+  enSeq.splice(Math.random()*(enSeq.length+1)|0,0,p.key);
+  trSeq.splice(Math.random()*(trSeq.length+1)|0,0,p.key);
+  render();
+}
+
+function tileEl(key,side){
+  const p=active.find(x=>x.key===key);
+  const el=document.createElement("button");
+  el.className="tile "+side;
+  el.dataset.key=key;
+  el.textContent=(side==="en")?p.en:p.tr;
+  el.addEventListener("click",()=>pick(key,side,el));
+  return el;
+}
+
+function render(){
+  // sadece eksik olan kutucukları ekle -> yeni gelen düşme animasyonu alır, kalanlar sabit
+  syncGrid(gridEN,enSeq,"en");
+  syncGrid(gridTR,trSeq,"tr");
+}
+function syncGrid(grid,seq,side){
+  const present=new Set([...grid.children].map(c=>+c.dataset.key));
+  // sıra bozulmasın: tamamen yeniden diz ama var olanları animasyonsuz koru
+  grid.innerHTML="";
+  seq.forEach(k=>{
+    const el=tileEl(k,side);
+    if(present.has(k)) el.style.animation="none";
+    grid.appendChild(el);
+  });
+}
+
+function pick(key,side,el){
+  if(busy||el.classList.contains("hit")) return;
+  if(!selected){
+    clearSel();
+    selected={key,side,el};
+    el.classList.add("sel");
+    return;
+  }
+  if(selected.side===side){ // aynı taraftan ikinci seçim -> seçimi taşı
+    clearSel();
+    selected={key,side,el};
+    el.classList.add("sel");
+    return;
+  }
+  // iki taraftan seçim yapıldı -> kontrol
+  const a=selected;
+  if(a.key===key){ correct(a,{key,side,el}); }
+  else { wrong(a.el,el); }
+}
+
+function clearSel(){
+  document.querySelectorAll(".tile.sel").forEach(t=>t.classList.remove("sel"));
+  selected=null;
+}
+
+function correct(a,b){
+  busy=true;
+  clearSel();
+  a.el.classList.remove("sel"); b.el.classList.remove("sel");
+  a.el.classList.add("hit"); b.el.classList.add("hit");
+  // durumu güncelle
+  active=active.filter(x=>x.key!==a.key);
+  enSeq=enSeq.filter(k=>k!==a.key);
+  trSeq=trSeq.filter(k=>k!==a.key);
+  score++;
+  setTimeout(()=>{
+    render();
+    spawn(); // yerine yenisi düşsün
+    busy=false;
+    updateHUD();
+    if(score>0 && score%ROUND===0) roundEnd();
+    if(score>=TARGET) win();
+  },430);
+  updateHUD();
+}
+
+function wrong(elA,elB){
+  clearSel();
+  elA.classList.add("miss"); elB.classList.add("miss");
+  setTimeout(()=>{elA.classList.remove("miss");elB.classList.remove("miss");},400);
+  totalWrong++; roundWrong++;
+  const key=Math.min(roundWrong,6);
+  const m=MISS_MSG[key];
+  if(roundWrong===1) breaks++;      // "1 sigara molası" da bir mola sayılır
+  showToast(m.t,m.e,m.cls);
+  updateHUD();
+}
+
+function roundEnd(){
+  // her 10 doğruda: Maya gurur; tur temizse ekstra sigara molası
+  if(roundWrong===0){
+    breaks++;
+    showToast("Maya sizinle gurur duyuyor — hatasız tur! Tebrikler, 1 sigara molası","💛🚬","good");
+  }else{
+    showToast("Maya sizinle gurur duyuyor","💛","good");
+  }
+  roundWrong=0;
+  updateHUD();
+}
+
+let toastTimer;
+function showToast(text,emo,cls){
+  clearTimeout(toastTimer);
+  toast.className="toast "+(cls||"");
+  toast.innerHTML=`<span class="emo">${emo||""}</span>${text}`;
+  // reflow to restart animation
+  void toast.offsetWidth;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),1900);
+}
+
+function updateHUD(){
+  $("scoreNow").textContent=score;
+  $("barFill").style.width=(score/TARGET*100)+"%";
+  $("wrongNow").textContent=roundWrong;
+  // sigara turdaki hataya göre kısalıp korlaşır
+  const stick=$("cigStick");
+  const w=Math.max(6,52-roundWrong*7);
+  stick.style.width=w+"px";
+}
+
+function win(){
+  $("winWrong").firstChild.textContent=totalWrong;
+  $("winBreaks").firstChild.textContent=breaks;
+  $("winMsg").textContent = totalWrong===0
+    ? "100 kelime, tek hata bile yok. Reading'in gururu. Maya sizinle gurur duyuyor."
+    : `100 kelimeyi bitirdin. ${totalWrong} hata, ${breaks} sigara molası. Maya sizinle gurur duyuyor.`;
+  go("win");
+}
+
+/* ============ EKRAN GEÇİŞLERİ ============ */
+function go(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+}
+$("startBtn").addEventListener("click",()=>{newGame();go("game");});
+$("againBtn").addEventListener("click",()=>{newGame();go("game");});
+</script>
+</body>
+</html>
