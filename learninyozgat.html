@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FBF4E6">
+<title>Learn in Yozgat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Sen:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF4E6;          /* warm cream room */
+    --surface:#FFFFFF;
+    --ink:#3A2E24;         /* warm dark text */
+    --muted:#96856F;
+    --amber:#EF9E2C;       /* brand tea */
+    --amber-deep:#C9781A;
+    --line:#E9DDC6;
+    --en-bg:#EAF2F9; --en-line:#CBDEEF; --en-ink:#1E4E7A;   /* İngilizce: serin mavi */
+    --tr-bg:#FCEEDD; --tr-line:#F2D9BC; --tr-ink:#A85E1B;   /* Türkçe: sıcak kavuniçi */
+    --good:#28A76A; --good-deep:#1C824F;                    /* DOĞRU: yeşil */
+    --bad:#E44634; --bad-deep:#BE2C1C;                      /* YANLIŞ: kırmızı */
+    --sel:#F2A93B;
+    --toppad:0px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#DED7C8;
+    color:var(--ink);
+    font-family:'Sen',system-ui,-apple-system,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;overflow:hidden;
+    -webkit-user-select:none;user-select:none;
+  }
+
+  /* ---------- iPhone çerçevesi ---------- */
+  .device{
+    position:relative;width:100vw;height:100dvh;
+    background:radial-gradient(120% 70% at 50% 0%, #FFFCF3 0%, var(--bg) 55%);
+    overflow:hidden;display:flex;flex-direction:column;
+  }
+  @media (min-width:480px){
+    body{padding:24px}
+    .device{
+      width:min(420px,92vw);height:min(880px,94dvh);
+      border-radius:46px;
+      box-shadow:0 0 0 11px #1b1b1e, 0 0 0 13px #3a3a3f, 0 34px 70px rgba(0,0,0,.45);
+      --toppad:26px;
+    }
+    .island{display:block}
+  }
+  .island{
+    display:none;position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:104px;height:29px;background:#101012;border-radius:16px;z-index:60;
+  }
+
+  .screen{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    padding-top:calc(var(--toppad) + env(safe-area-inset-top));
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .screen.on{opacity:1;pointer-events:auto}
+
+  /* ---------- HOME ---------- */
+  #home{align-items:center;text-align:center;padding-left:18px;padding-right:18px;padding-bottom:calc(env(safe-area-inset-bottom) + 18px)}
+  .brand{padding-top:16px}
+  .eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--amber-deep);font-weight:800}
+  .title{
+    font-family:'Fraunces',serif;font-weight:900;line-height:.9;
+    font-size:clamp(38px,13vw,58px);margin-top:4px;color:var(--ink);
+  }
+  .title em{font-style:italic;color:var(--amber)}
+  .art-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;width:100%;padding:6px}
+  .art-wrap svg{width:min(320px,80vw);height:auto;filter:drop-shadow(0 16px 30px rgba(120,90,40,.28))}
+  .home-foot{width:100%;max-width:400px}
+  .lvl-label{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
+  .levels{display:flex;gap:12px;margin-bottom:16px}
+  .lvl{
+    flex:1;cursor:pointer;border:2px solid var(--line);background:var(--surface);
+    border-radius:18px;padding:14px 10px;text-align:center;
+    box-shadow:0 4px 0 rgba(180,150,100,.18);
+    transition:transform .1s ease, border-color .1s ease, box-shadow .1s ease;
+  }
+  .lvl:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(180,150,100,.18)}
+  .lvl .code{font-family:'Fraunces';font-weight:900;font-size:26px;color:var(--ink);line-height:1}
+  .lvl .tag{display:block;margin-top:3px;font-size:12px;font-weight:800;letter-spacing:.06em}
+  .lvl.easy .code{color:var(--good)} .lvl.easy .tag{color:var(--good-deep)}
+  .lvl.mid .code{color:var(--amber-deep)} .lvl.mid .tag{color:var(--amber-deep)}
+  .how{color:var(--muted);font-size:13px;line-height:1.5}
+  .how b{color:var(--ink);font-weight:700}
+
+  /* ---------- HUD ---------- */
+  .hud{display:flex;align-items:center;gap:12px;padding:12px 16px 8px}
+  .prog{flex:1;min-width:0}
+  .prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .prog-top .label{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:800}
+  .prog-top .count{font-family:'Fraunces';font-weight:900;font-size:15px;color:var(--amber-deep)}
+  .prog-top .count b{color:var(--ink)}
+  .bar{height:9px;border-radius:99px;background:#EFE6D2;overflow:hidden;border:1px solid var(--line)}
+  .bar > i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--amber-deep),var(--amber));transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .miss-hud{display:flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:6px 10px}
+  .miss-hud .cig{font-size:15px}
+  .miss-hud .n{font-family:'Fraunces';font-weight:900;font-size:16px;color:var(--bad-deep)}
+  .miss-hud .n.zero{color:var(--good-deep)}
+
+  /* ---------- BOARD ---------- */
+  .board{flex:1;display:flex;gap:8px;padding:2px 12px 12px;min-height:0;position:relative}
+  .col-side{
+    flex:1;display:flex;flex-direction:column;min-width:0;
+    background:var(--surface);border:1.5px solid var(--line);border-radius:16px;
+    padding:6px;position:relative;overflow:hidden;
+    box-shadow:0 4px 14px rgba(150,120,70,.08);
+  }
+  .col-head{text-align:center;font-size:9.5px;letter-spacing:.22em;font-weight:800;text-transform:uppercase;color:var(--muted);padding:2px 0 5px;flex:0 0 auto}
+  .col-side.en .col-head{color:var(--en-ink)}
+  .col-side.tr .col-head{color:var(--tr-ink)}
+  .grid{flex:1;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,1fr);gap:6px;min-height:0}
+  .tile{
+    position:relative;border:1.5px solid var(--line);border-radius:10px;
+    font-family:'Sen';font-weight:700;line-height:1.02;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:2px;cursor:pointer;overflow:hidden;
+    word-break:break-word;overflow-wrap:anywhere;
+    box-shadow:0 2px 0 rgba(160,130,80,.14);
+    animation:drop .4s cubic-bezier(.3,1.4,.5,1) both;
+    transition:transform .1s ease, border-color .1s ease, background .1s ease;
+  }
+  .col-side.en .tile{background:var(--en-bg);border-color:var(--en-line);color:var(--en-ink)}
+  .col-side.tr .tile{background:var(--tr-bg);border-color:var(--tr-line);color:var(--tr-ink)}
+  @keyframes drop{
+    0%{transform:translateY(-140%) rotate(-3deg);opacity:0}
+    75%{opacity:1}
+    100%{transform:translateY(0) rotate(0);opacity:1}
+  }
+  .tile.sel{border-color:var(--sel)!important;background:#FFF3DC!important;color:var(--amber-deep)!important;transform:translateY(-2px) scale(1.05);box-shadow:0 0 0 3px rgba(242,169,59,.45),0 6px 12px rgba(242,169,59,.25);z-index:2}
+  .tile.hit{pointer-events:none;animation:hit .42s ease forwards}
+  @keyframes hit{
+    0%{transform:scale(1)}
+    30%{transform:scale(1.12);background:var(--good)!important;border-color:var(--good-deep)!important;color:#fff!important;box-shadow:0 0 20px 3px rgba(40,167,106,.55)}
+    100%{transform:scale(.15) translateY(-6px);opacity:0;background:var(--good)!important;color:#fff!important}
+  }
+  .tile.miss{animation:miss .42s ease}
+  @keyframes miss{
+    0%,100%{transform:translateX(0)}
+    15%{transform:translateX(-6px);background:var(--bad)!important;border-color:var(--bad-deep)!important;color:#fff!important}
+    45%{transform:translateX(6px);background:var(--bad)!important;color:#fff!important}
+    70%{transform:translateX(-4px);background:var(--bad)!important;color:#fff!important}
+  }
+
+  /* ---------- TOAST ---------- */
+  .toast-layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:40;padding:22px}
+  .toast{
+    max-width:330px;text-align:center;padding:18px 22px;border-radius:20px;
+    font-family:'Fraunces';font-weight:600;font-size:21px;line-height:1.2;
+    background:var(--surface);border:2px solid var(--line);color:var(--ink);
+    box-shadow:0 20px 44px rgba(90,70,40,.28);
+    opacity:0;transform:scale(.84) translateY(8px);
+  }
+  .toast.show{animation:toastPop 2s ease forwards}
+  .toast.good{border-color:var(--good)} .toast.good .emo{color:var(--good)}
+  .toast.warn{border-color:var(--bad)} .toast.warn .emo{color:var(--bad)}
+  .toast .emo{display:block;font-size:30px;margin-bottom:6px}
+  @keyframes toastPop{
+    0%{opacity:0;transform:scale(.84) translateY(8px)}
+    12%{opacity:1;transform:scale(1) translateY(0)}
+    84%{opacity:1;transform:scale(1) translateY(0)}
+    100%{opacity:0;transform:scale(.96) translateY(-6px)}
+  }
+
+  /* ---------- WIN ---------- */
+  #win{justify-content:center;align-items:center;text-align:center;padding:30px}
+  #win .big{font-family:'Fraunces';font-weight:900;font-size:clamp(30px,10vw,46px);color:var(--amber-deep);line-height:1.02}
+  #win p{color:var(--muted);font-size:14.5px;margin:14px 0 24px;line-height:1.5;max-width:310px}
+  #win .stat{display:flex;gap:20px;margin-bottom:24px}
+  #win .stat div{font-family:'Fraunces';font-weight:900;font-size:28px;color:var(--ink)}
+  #win .stat span{display:block;font-family:'Sen';font-weight:800;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .btn{
+    display:block;width:100%;max-width:300px;border:none;cursor:pointer;
+    background:linear-gradient(180deg,var(--amber) 0%,var(--amber-deep) 100%);
+    color:#fff;font-family:'Sen';font-weight:800;font-size:18px;letter-spacing:.02em;
+    padding:16px;border-radius:15px;
+    box-shadow:0 8px 0 #955810, 0 12px 22px rgba(150,90,20,.3);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active{transform:translateY(6px);box-shadow:0 2px 0 #955810,0 6px 12px rgba(150,90,20,.3)}
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="island"></div>
+
+  <!-- ===================== HOME ===================== -->
+  <section id="home" class="screen on">
+    <div class="brand">
+      <div class="eyebrow">Kan Gazı Odası · Çay & Sigara</div>
+      <h1 class="title">Learn in <em>Yozgat</em></h1>
+    </div>
+
+    <div class="art-wrap" aria-label="Pembe başörtülü, hastane önlüklü orta yaşlı bir kadın Kan Gazı odasında çay ve sigara içiyor">
+      <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F3E7CE"/><stop offset="1" stop-color="#E4D2AE"/>
+          </linearGradient>
+          <linearGradient id="gown" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F2F6F8"/><stop offset="1" stop-color="#D6DEE3"/>
+          </linearGradient>
+          <linearGradient id="scarf" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#F19FC0"/><stop offset="1" stop-color="#D96A97"/>
+          </linearGradient>
+          <linearGradient id="tea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F3B64F"/><stop offset="1" stop-color="#C4761A"/>
+          </linearGradient>
+        </defs>
+
+        <!-- room -->
+        <rect x="0" y="0" width="340" height="300" fill="url(#wall)"/>
+        <rect x="0" y="236" width="340" height="64" fill="#C9A86F"/>
+        <line x1="0" y1="236" x2="340" y2="236" stroke="#a9884f" stroke-width="2"/>
+
+        <!-- door with KAN GAZI sign -->
+        <rect x="16" y="50" width="88" height="186" rx="4" fill="#E9D3A6" stroke="#b8965c" stroke-width="2"/>
+        <rect x="29" y="68" width="62" height="32" rx="5" fill="#2f6d55" stroke="#255946" stroke-width="1.5"/>
+        <text x="60" y="82" text-anchor="middle" fill="#FBF4E6" font-family="Sen,sans-serif" font-weight="800" font-size="11">KAN</text>
+        <text x="60" y="95" text-anchor="middle" fill="#FBF4E6" font-family="Sen,sans-serif" font-weight="800" font-size="11">GAZI</text>
+        <circle cx="94" cy="148" r="3.4" fill="#a9884f"/>
+
+        <!-- ===== figure (orta yaşlı, balık etli) ===== -->
+        <!-- body / fuller hospital gown -->
+        <path d="M98 300 q-3 -72 25 -100 q18 -20 47 -20 q29 0 47 20 q28 28 25 100 Z" fill="url(#gown)"/>
+        <path d="M170 182 v118" stroke="#aeb9bf" stroke-width="2" opacity=".55"/>
+        <path d="M148 188 q22 16 44 0" fill="none" stroke="#aeb9bf" stroke-width="2.5"/>
+        <circle cx="170" cy="203" r="2.4" fill="#aeb9bf"/>
+
+        <!-- neck (fair skin) -->
+        <rect x="161" y="146" width="18" height="20" rx="7" fill="#eac7a8"/>
+
+        <!-- pink headscarf (hood) -->
+        <path d="M170 80 C205 80 212 116 203 141 C198 152 186 158 170 159 C154 158 142 152 137 141 C128 116 135 80 170 80 Z" fill="url(#scarf)"/>
+        <path d="M137 141 C131 118 135 92 151 84 C141 94 137 116 142 138 Z" fill="#c96a92" opacity=".5"/>
+        <!-- face -->
+        <ellipse cx="170" cy="128" rx="22" ry="24" fill="#f5dabf"/>
+        <ellipse cx="156" cy="136" rx="5.5" ry="4.5" fill="#eda28c" opacity=".55"/>
+        <ellipse cx="184" cy="136" rx="5.5" ry="4.5" fill="#eda28c" opacity=".55"/>
+        <ellipse cx="162" cy="126" rx="2.5" ry="3.2" fill="#4a2c1a"/>
+        <ellipse cx="178" cy="126" rx="2.5" ry="3.2" fill="#4a2c1a"/>
+        <path d="M156 119 q6 -3 11 0" fill="none" stroke="#8a5a34" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M173 119 q6 -3 11 0" fill="none" stroke="#8a5a34" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M167 132 q3 3 6 0" fill="none" stroke="#d9a98a" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M162 142 q8 6 16 0" fill="none" stroke="#b06a45" stroke-width="2.1" stroke-linecap="round"/>
+
+        <!-- chin knot (alttan bağlı) + tails -->
+        <path d="M166 158 L160 184 L170 180 Z" fill="url(#scarf)"/>
+        <path d="M174 158 L182 184 L170 180 Z" fill="#d97ba0"/>
+        <ellipse cx="163" cy="156" rx="6.5" ry="5.5" fill="url(#scarf)"/>
+        <ellipse cx="177" cy="156" rx="6.5" ry="5.5" fill="#e58bb0"/>
+        <ellipse cx="170" cy="157" rx="3" ry="4" fill="#c96a92"/>
+
+        <!-- her right arm + cigarette (parmak arasında, yüzden uzak) -->
+        <path d="M124 200 Q114 226 148 238" fill="none" stroke="url(#gown)" stroke-width="20" stroke-linecap="round"/>
+        <ellipse cx="152" cy="236" rx="11" ry="8.5" fill="#f5dabf"/>
+        <g transform="rotate(-20 152 234)">
+          <rect x="150" y="231" width="36" height="5" rx="2.5" fill="#f7f0de"/>
+          <rect x="150" y="231" width="9" height="5" rx="2.5" fill="#e0a24a"/>
+          <circle cx="188" cy="233.5" r="2.8" fill="#E44634"/>
+        </g>
+        <ellipse cx="156" cy="233" rx="4" ry="6" fill="#f0cdb0"/>
+        <path d="M188 219 q10 -13 -2 -25 q-9 -10 2 -21" fill="none" stroke="rgba(120,90,50,.32)" stroke-width="3.4" stroke-linecap="round">
+          <animate attributeName="opacity" values="0;.55;0" dur="4s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- her left arm + tea glass (elde tutuluyor) -->
+        <path d="M216 200 Q226 226 194 240" fill="none" stroke="url(#gown)" stroke-width="20" stroke-linecap="round"/>
+        <ellipse cx="194" cy="238" rx="11" ry="8.5" fill="#f5dabf"/>
+        <g transform="translate(183 208)">
+          <ellipse cx="11" cy="34" rx="15" ry="3.6" fill="#e7d8bb" stroke="#c9a86f" stroke-width="1"/>
+          <path d="M1 4 Q11 1 21 4 C20 12 16 15 15 19 C16 25 19 27 20 31 Q11 34 2 31 C3 27 6 25 7 19 C6 15 2 12 1 4 Z" fill="url(#tea)" stroke="#8a5a2a" stroke-width="1.3"/>
+          <ellipse cx="11" cy="5" rx="10" ry="2.6" fill="#f7d68a"/>
+          <ellipse cx="5" cy="22" rx="3.4" ry="6" fill="#f0cdb0"/>
+          <ellipse cx="17" cy="22" rx="3.4" ry="6" fill="#f0cdb0"/>
+        </g>
+        <path d="M194 205 q7 -12 -2 -21 q-8 -9 1 -18" fill="none" stroke="rgba(150,110,60,.4)" stroke-width="3" stroke-linecap="round">
+          <animate attributeName="opacity" values="0;.65;0" dur="3.4s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+
+    <div class="home-foot">
+      <div class="lvl-label">Seviye Seç</div>
+      <div class="levels">
+        <button class="lvl easy" data-lvl="a2"><span class="code">A2</span><span class="tag">Kolay</span></button>
+        <button class="lvl mid" data-lvl="b1"><span class="code">B1</span><span class="tag">Orta</span></button>
+      </div>
+      <p class="how"><b>İngilizce</b> kelimeyi seç, sağdaki <b>Türkçe</b> karşılığıyla eşleştir. Hedef: 100 doğru.</p>
+    </div>
+  </section>
+
+  <!-- ===================== GAME ===================== -->
+  <section id="game" class="screen">
+    <div class="hud">
+      <div class="prog">
+        <div class="prog-top">
+          <span class="label">Doğru</span>
+          <span class="count"><b id="scoreNow">0</b> / 100</span>
+        </div>
+        <div class="bar"><i id="barFill"></i></div>
+      </div>
+      <div class="miss-hud" title="Toplam hata">
+        <span class="cig">🚬</span><span class="n zero" id="missNow">0</span>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="col-side en"><div class="col-head">English</div><div class="grid" id="gridEN"></div></div>
+      <div class="col-side tr"><div class="col-head">Türkçe</div><div class="grid" id="gridTR"></div></div>
+      <div class="toast-layer"><div class="toast" id="toast"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== WIN ===================== -->
+  <section id="win" class="screen">
+    <div class="big" id="winTitle">Nöbet Bitti ☕</div>
+    <p id="winMsg"></p>
+    <div class="stat">
+      <div>100<span>Doğru</span></div>
+      <div id="winWrong">0<span>Toplam Hata</span></div>
+    </div>
+    <button class="btn" id="againBtn">Ana Menü</button>
+  </section>
+</div>
+
+<script>
+/* ================= KELİME HAVUZLARI ================= */
+/* A2 — Kolay (temel, günlük kelimeler) */
+const A2 = [
+["apple","elma"],["house","ev"],["water","su"],["bread","ekmek"],["milk","süt"],
+["school","okul"],["book","kitap"],["table","masa"],["chair","sandalye"],["door","kapı"],
+["window","pencere"],["car","araba"],["bus","otobüs"],["train","tren"],["street","sokak"],
+["city","şehir"],["village","köy"],["family","aile"],["mother","anne"],["father","baba"],
+["sister","kız kardeş"],["brother","erkek kardeş"],["friend","arkadaş"],["teacher","öğretmen"],["student","öğrenci"],
+["doctor","doktor"],["nurse","hemşire"],["hospital","hastane"],["money","para"],["shop","dükkan"],
+["market","market"],["food","yemek"],["breakfast","kahvaltı"],["lunch","öğle yemeği"],["dinner","akşam yemeği"],
+["morning","sabah"],["evening","akşam"],["night","gece"],["today","bugün"],["tomorrow","yarın"],
+["yesterday","dün"],["week","hafta"],["month","ay"],["year","yıl"],["day","gün"],
+["hour","saat"],["minute","dakika"],["time","zaman"],["weather","hava"],["rain","yağmur"],
+["snow","kar"],["sun","güneş"],["wind","rüzgar"],["cloud","bulut"],["hot","sıcak"],
+["cold","soğuk"],["warm","ılık"],["big","büyük"],["small","küçük"],["tall","uzun boylu"],
+["short","kısa"],["long","uzun"],["new","yeni"],["old","eski"],["young","genç"],
+["happy","mutlu"],["sad","üzgün"],["angry","kızgın"],["tired","yorgun"],["hungry","aç"],
+["thirsty","susamış"],["easy","kolay"],["difficult","zor"],["fast","hızlı"],["slow","yavaş"],
+["clean","temiz"],["dirty","kirli"],["open","açık"],["closed","kapalı"],["correct","doğru"],
+["wrong","yanlış"],["early","erken"],["late","geç"],["near","yakın"],["far","uzak"],
+["cheap","ucuz"],["expensive","pahalı"],["beautiful","güzel"],["strong","güçlü"],["weak","zayıf"],
+["rich","zengin"],["poor","fakir"],["full","dolu"],["empty","boş"],["dog","köpek"],
+["cat","kedi"],["bird","kuş"],["fish","balık"],["horse","at"],["tree","ağaç"],
+["flower","çiçek"],["garden","bahçe"],["kitchen","mutfak"],["clothes","giysi"],["shoes","ayakkabı"],
+["shirt","gömlek"],["hat","şapka"],["colour","renk"],["red","kırmızı"],["blue","mavi"],
+["green","yeşil"],["yellow","sarı"],["black","siyah"],["white","beyaz"],["number","sayı"],
+["name","isim"],["word","kelime"],["question","soru"],["answer","cevap"],["work","iş"],
+["holiday","tatil"],["music","müzik"],["film","film"],["game","oyun"],["phone","telefon"]
+];
+
+/* B1 — Orta */
+const B1 = [
+["ability","yetenek"],["accept","kabul etmek"],["achieve","başarmak"],["admit","itiraf etmek"],["advantage","avantaj"],
+["advice","tavsiye"],["afford","gücü yetmek"],["agree","katılmak"],["allow","izin vermek"],["amazing","şaşırtıcı"],
+["announce","duyurmak"],["annoy","sinirlendirmek"],["anxious","endişeli"],["apologise","özür dilemek"],["appear","görünmek"],
+["appreciate","takdir etmek"],["approach","yaklaşmak"],["argue","tartışmak"],["arrange","düzenlemek"],["attach","eklemek"],
+["attempt","girişim"],["attend","katılmak"],["attitude","tutum"],["attract","cezbetmek"],["available","mevcut"],
+["avoid","kaçınmak"],["aware","farkında"],["balance","denge"],["behave","davranmak"],["belong","ait olmak"],
+["benefit","fayda"],["blame","suçlamak"],["borrow","ödünç almak"],["brave","cesur"],["breathe","nefes almak"],
+["calm","sakin"],["celebrate","kutlamak"],["challenge","meydan okuma"],["claim","iddia etmek"],["clever","akıllı"],
+["comfort","rahatlık"],["compare","karşılaştırmak"],["compete","yarışmak"],["complain","şikayet etmek"],["concern","endişe"],
+["confident","özgüvenli"],["connect","bağlamak"],["consider","düşünmek"],["contain","içermek"],["continue","devam etmek"],
+["convince","ikna etmek"],["courage","cesaret"],["create","yaratmak"],["crowd","kalabalık"],["curious","meraklı"],
+["damage","hasar"],["deal","anlaşma"],["decrease","azalmak"],["delay","gecikme"],["deliver","teslim etmek"],
+["demand","talep"],["deny","reddetmek"],["depend","bağlı olmak"],["describe","tanımlamak"],["deserve","hak etmek"],
+["destroy","yok etmek"],["develop","geliştirmek"],["disappear","kaybolmak"],["discover","keşfetmek"],["distance","mesafe"],
+["divide","bölmek"],["doubt","şüphe"],["earn","kazanmak"],["effort","çaba"],["emergency","acil durum"],
+["employ","işe almak"],["encourage","teşvik etmek"],["enemy","düşman"],["enormous","devasa"],["ensure","sağlamak"],
+["environment","çevre"],["escape","kaçmak"],["examine","incelemek"],["expand","genişlemek"],["expect","beklemek"],
+["experience","deneyim"],["explain","açıklamak"],["express","ifade etmek"],["familiar","tanıdık"],["famous","ünlü"],
+["fault","kusur"],["fear","korku"],["flexible","esnek"],["focus","odaklanmak"],["forgive","affetmek"],
+["fortune","servet"],["frequent","sık"],["gain","kazanç"],["generous","cömert"],["gentle","nazik"],
+["goal","hedef"],["guilty","suçlu"],["habit","alışkanlık"],["handle","idare etmek"],["harm","zarar"],
+["hesitate","tereddüt etmek"],["honest","dürüst"],["ignore","görmezden gelmek"],["imagine","hayal etmek"],["improve","geliştirmek"],
+["income","gelir"],["increase","artmak"],["independent","bağımsız"],["influence","etki"],["injure","yaralamak"],
+["innocent","masum"],["insist","ısrar etmek"],["inspire","ilham vermek"],["intend","niyet etmek"],["introduce","tanıtmak"],
+["invent","icat etmek"],["involve","dahil etmek"],["journey","yolculuk"],["knowledge","bilgi"],["lack","eksiklik"],
+["lazy","tembel"],["lend","ödünç vermek"],["limit","sınır"],["lonely","yalnız"],["maintain","sürdürmek"],
+["manage","yönetmek"],["mention","bahsetmek"],["nervous","gergin"],["obtain","elde etmek"],["obvious","apaçık"],
+["offer","teklif etmek"],["opinion","görüş"],["opportunity","fırsat"],["patient","sabırlı"],["persuade","ikna etmek"],
+["polite","kibar"],["poverty","yoksulluk"],["praise","övmek"],["prefer","tercih etmek"],["prepare","hazırlamak"],
+["prevent","önlemek"],["previous","önceki"],["produce","üretmek"],["progress","ilerleme"],["promise","söz vermek"],
+["protect","korumak"],["provide","sağlamak"],["purpose","amaç"],["quality","kalite"],["reach","ulaşmak"],
+["realise","fark etmek"],["reason","sebep"],["recognise","tanımak"],["recommend","tavsiye etmek"],["reduce","azaltmak"],
+["refuse","reddetmek"],["regret","pişman olmak"],["relax","rahatlamak"],["reliable","güvenilir"],["remain","kalmak"],
+["remind","hatırlatmak"],["remove","kaldırmak"],["repair","tamir etmek"],["replace","değiştirmek"],["require","gerektirmek"],
+["rescue","kurtarmak"],["research","araştırma"],["respect","saygı"],["responsible","sorumlu"],["reveal","açığa çıkarmak"],
+["reward","ödül"],["satisfy","tatmin etmek"],["search","aramak"],["sensible","mantıklı"],["separate","ayırmak"],
+["serious","ciddi"],["several","birkaç"],["shame","utanç"],["share","paylaşmak"],["shy","utangaç"],
+["silent","sessiz"],["similar","benzer"],["skill","beceri"],["society","toplum"],["solve","çözmek"],
+["spread","yaymak"],["strange","garip"],["strength","güç"],["stress","stres"],["strict","katı"],
+["struggle","mücadele etmek"],["succeed","başarmak"],["suffer","acı çekmek"],["suggest","önermek"],["support","desteklemek"],
+["suppose","varsaymak"],["surface","yüzey"],["survive","hayatta kalmak"],["suspect","şüphelenmek"],["threaten","tehdit etmek"],
+["tidy","düzenli"],["tiny","minik"],["tough","zorlu"],["translate","çevirmek"],["trust","güvenmek"],
+["unique","eşsiz"],["useful","yararlı"],["valuable","değerli"],["various","çeşitli"],["victory","zafer"],
+["volunteer","gönüllü"],["warn","uyarmak"],["waste","israf etmek"],["wealth","varlık"],["weird","tuhaf"],
+["wisdom","bilgelik"],["worth","değer"],["gather","toplamak"],["grateful","minnettar"],["greedy","açgözlü"],
+["impress","etkilemek"],["indicate","belirtmek"]
+];
+
+/* ================= AYARLAR ================= */
+const TARGET = 100;   // 1 tur = 100 soru
+const COLS   = 2;     // 2 geniş sütun
+const ROWS   = 6;     // 6 satır (ekranı doldurur)
+const ONBOARD= COLS*ROWS; // 2x6 = 12 çift
+
+const INSULTS = {     // 2. yanlıştan itibaren (1. yanlışta mesaj yok)
+  2:"Ahmet bile senden iyi",
+  3:"Maya sizi anlamayabilir",
+  4:"Reading'in yüz karası",
+  5:"Bu oyun için yeterince okuma yazmanız olduğundan emin misin?",
+  6:"Sigara içmeyi haketmedin."
+};
+
+/* ================= DURUM ================= */
+let levelWords, bag, active, enSeq, trSeq, score, streak, totalWrong, selected, busy;
+
+const $=(id)=>document.getElementById(id);
+const gridEN=$("gridEN"), gridTR=$("gridTR"), toast=$("toast");
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function newGame(level){
+  const src = (level==="a2")?A2:B1;
+  levelWords = src.map((w,i)=>({en:w[0],tr:w[1],key:i}));
+  bag = shuffle(levelWords.slice());
+  active=[]; enSeq=[]; trSeq=[];
+  score=0; streak=0; totalWrong=0; selected=null; busy=false;
+  gridEN.innerHTML=""; gridTR.innerHTML="";
+  for(let i=0;i<ONBOARD;i++) spawn(false);
+  render(); updateHUD();
+}
+
+function nextWord(){
+  let tries=0;
+  while(tries++<500){
+    if(!bag.length) bag=shuffle(levelWords.slice());
+    const w=bag.pop();
+    if(!active.some(a=>a.key===w.key)) return w;
+  }
+  return null;
+}
+
+function spawn(doRender=true){
+  const w=nextWord(); if(!w) return;
+  active.push(w);
+  enSeq.splice(Math.random()*(enSeq.length+1)|0,0,w.key);
+  trSeq.splice(Math.random()*(trSeq.length+1)|0,0,w.key);
+  if(doRender) render();
+}
+
+function tileEl(key,side){
+  const p=active.find(x=>x.key===key);
+  const el=document.createElement("button");
+  el.className="tile";
+  el.dataset.key=key;
+  el.textContent=(side==="en")?p.en:p.tr;
+  el.addEventListener("click",()=>pick(key,side,el));
+  return el;
+}
+
+function render(){
+  syncGrid(gridEN,enSeq,"en");
+  syncGrid(gridTR,trSeq,"tr");
+  requestAnimationFrame(fitAll);
+}
+function syncGrid(grid,seq,side){
+  const present=new Set([...grid.children].map(c=>+c.dataset.key));
+  grid.innerHTML="";
+  seq.forEach((k,idx)=>{
+    const el=tileEl(k,side);
+    if(present.has(k)) el.style.animation="none";
+    else el.style.animationDelay=((idx%COLS)*0.03)+"s";
+    grid.appendChild(el);
+  });
+}
+
+/* yazıyı kutuya sığdır (alta taşmasın) */
+function fitText(el){
+  let size=17;
+  el.style.fontSize=size+"px";
+  let i=0;
+  while((el.scrollHeight>el.clientHeight||el.scrollWidth>el.clientWidth)&&size>7&&i++<24){
+    size-=0.5; el.style.fontSize=size+"px";
+  }
+}
+function fitAll(){document.querySelectorAll(".tile").forEach(fitText);}
+window.addEventListener("resize",()=>requestAnimationFrame(fitAll));
+
+function pick(key,side,el){
+  if(busy||el.classList.contains("hit")) return;
+  if(!selected){ setSel(el,key,side); return; }
+  if(selected.side===side){ // aynı taraf: seçimi taşı
+    selected.el.classList.remove("sel");
+    setSel(el,key,side); return;
+  }
+  const a=selected;
+  if(a.key===key) correct(a,{key,side,el});
+  else wrong(a.el,el);
+}
+function setSel(el,key,side){ el.classList.add("sel"); selected={key,side,el}; }
+function clearSel(){ if(selected){selected.el.classList.remove("sel"); selected=null;} }
+
+function correct(a,b){
+  busy=true;
+  a.el.classList.remove("sel"); b.el.classList.remove("sel"); selected=null;
+  a.el.classList.add("hit"); b.el.classList.add("hit");
+  active=active.filter(x=>x.key!==a.key);
+  enSeq=enSeq.filter(k=>k!==a.key);
+  trSeq=trSeq.filter(k=>k!==a.key);
+  score++; streak++;
+  updateHUD();
+  setTimeout(()=>{
+    render();
+    if(score<TARGET) spawn(true);
+    busy=false;
+    if(score>=TARGET){ win(); return; }
+    cheer();
+  },420);
+}
+
+/* seri ve kilometre taşı mesajları */
+const PRAISE=["Yusuf seninle gurur duyuyor","Beyza seninle gurur duyuyor","Damat seninle gurur duyuyor","Kocan seninle gurur duyuyor","Maya seninle gurur duyuyor"];
+function cheer(){
+  if(score%20===0)      showToast("Yozgat seninle gurur duyuyor","⛰️","good");
+  else if(score%10===0) showToast("Karayakup seninle gurur duyuyor","🌾","good");
+  else if(streak%3===0) showToast(PRAISE[Math.random()*PRAISE.length|0],"💛","good");
+}
+
+function wrong(elA,elB){
+  clearSel();
+  elA.classList.add("miss"); elB.classList.add("miss");
+  setTimeout(()=>{elA.classList.remove("miss");elB.classList.remove("miss");},420);
+  totalWrong++;
+  streak=0;
+  updateHUD();
+  if(totalWrong>=2){                 // 1. yanlışta mesaj YOK
+    const key=Math.min(totalWrong,6);
+    showToast(INSULTS[key],"🚭","warn");
+  }
+}
+
+let toastTimer;
+function showToast(text,emo,cls){
+  clearTimeout(toastTimer);
+  toast.className="toast "+(cls||"");
+  toast.innerHTML=`<span class="emo">${emo||""}</span>${text}`;
+  void toast.offsetWidth;
+  toast.classList.add("show");
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),2000);
+}
+
+function updateHUD(){
+  $("scoreNow").textContent=score;
+  $("barFill").style.width=(score/TARGET*100)+"%";
+  const m=$("missNow");
+  m.textContent=totalWrong;
+  m.classList.toggle("zero",totalWrong===0);
+}
+
+function win(){
+  $("winWrong").firstChild.textContent=totalWrong;
+  if(totalWrong<=1){
+    $("winTitle").textContent="Tebrikler! 1 sigara molası 🚬";
+    $("winMsg").textContent = totalWrong===0
+      ? "100 kelime, tek hata bile yok. Reading'in gururu. Sigaranı yak, çayını demle."
+      : "100 kelimeyi yalnızca 1 hatayla bitirdin. Molayı haketttin — Maya sizinle gurur duyuyor.";
+  }else{
+    $("winTitle").textContent="Nöbet Bitti ☕";
+    $("winMsg").textContent = `100 kelime tamam, ${totalWrong} hata. Molayı zor beladan aldın.`;
+  }
+  go("win");
+}
+
+/* ================= EKRAN GEÇİŞLERİ ================= */
+function go(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+}
+document.querySelectorAll(".lvl").forEach(b=>{
+  b.addEventListener("click",()=>{ newGame(b.dataset.lvl); go("game"); requestAnimationFrame(fitAll); });
+});
+$("againBtn").addEventListener("click",()=>go("home"));
+</script>
+</body>
+</html>
